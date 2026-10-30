@@ -1,3 +1,27 @@
 *{
     font-family: verdana;
 }
+
+/* Pantalla de carga */
+#pantalla-carga {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#pantalla-carga.oculto {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#pantalla-carga .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}

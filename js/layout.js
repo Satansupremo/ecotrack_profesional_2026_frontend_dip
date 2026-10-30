@@ -1,5 +1,8 @@
 
-document.addEventListener("DOMContentLoaded", inicializarLayout);
+document.addEventListener("DOMContentLoaded", async () => {
+    await inicializarLayout();
+    ocultarPantallaCarga();
+});
 
 async function inicializarLayout() {
     const headerContainer = document.getElementById("site-header");
@@ -32,7 +35,6 @@ async function inicializarLayout() {
         console.error("Error al cargar los componentes:", error);
     }
 }
-
 
 function obtenerDatosToken() {
     const token = sessionStorage.getItem("token");
@@ -85,9 +87,14 @@ function obtenerDatosToken() {
 function actualizarHeader() {
     const accessMenu = document.getElementById("access-menu");
     const userMenu = document.getElementById("user-menu");
+    const notificationMenu = document.getElementById("notification-menu");
     const usernameLabel = document.getElementById("header-username");
     const roleLabel = document.getElementById("header-role");
     const logoutButton = document.getElementById("logout-button");
+
+    const menuMisSolicitudes = document.getElementById("menu-mis-solicitudes");
+    const menuSolicitudesPendientes = document.getElementById("menu-solicitudes-pendientes");
+    const menuSolicitudesPIE = document.getElementById("menu-solicitudes-pie");
 
     if (!accessMenu || !userMenu) {
         return;
@@ -98,6 +105,7 @@ function actualizarHeader() {
     if (usuario) {
         accessMenu.classList.add("d-none");
         userMenu.classList.remove("d-none");
+        notificationMenu?.classList.remove("d-none");
 
         if (usernameLabel) {
             usernameLabel.textContent =
@@ -107,9 +115,31 @@ function actualizarHeader() {
         if (roleLabel) {
             roleLabel.textContent = usuario.rol;
         }
+
+        menuMisSolicitudes?.classList.remove("d-none");
+
+        const rolesGestionSolicitudes = ["ADMINISTRADOR", "COORDINADOR"];
+        const tienePermisoGestion = rolesGestionSolicitudes.includes(usuario.rol);
+
+        if (tienePermisoGestion) {
+            menuSolicitudesPendientes?.classList.remove("d-none");
+            menuSolicitudesPIE?.classList.remove("d-none");
+
+            actualizarContadoresSolicitudes();
+        } else {
+            menuSolicitudesPendientes?.classList.add("d-none");
+            menuSolicitudesPIE?.classList.add("d-none");
+        }
+
+        actualizarContadorNotificaciones();
+
     } else {
         accessMenu.classList.remove("d-none");
         userMenu.classList.add("d-none");
+        notificationMenu?.classList.add("d-none");
+
+        menuSolicitudesPendientes?.classList.add("d-none");
+        menuSolicitudesPIE?.classList.add("d-none");
     }
 
     if (logoutButton && !logoutButton.dataset.eventoRegistrado) {
@@ -123,4 +153,68 @@ function cerrarSesion() {
     sessionStorage.removeItem("username");
 
     window.location.href = "/index.html";
+}
+
+async function actualizarContadoresSolicitudes() {
+    await Promise.all([
+        actualizarContador(
+            "http://localhost:8080/api/solicitud/pendientes/total",
+            "contador-solicitudes-pendientes"
+        ),
+        actualizarContador(
+            "http://localhost:8080/api/solicitud/pie/total",
+            "contador-solicitudes-pie"
+        )
+    ]);
+}
+
+async function actualizarContador(url, elementoId) {
+    const contador = document.getElementById(elementoId);
+
+    if (!contador) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetchAutenticado(url);
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok || !resultado.success) {
+            throw new Error(resultado.message || "No se pudo obtener el total.");
+        }
+
+        const cantidad = Number(resultado.data);
+
+        if (cantidad > 0) {
+            contador.textContent = cantidad;
+            contador.classList.remove("d-none");
+        } else {
+            contador.textContent = "";
+            contador.classList.add("d-none");
+        }
+
+    } catch (error) {
+        console.error(`Error al actualizar ${elementoId}:`, error);
+        contador.textContent = "";
+        contador.classList.add("d-none");
+    }
+}
+
+async function actualizarContadorNotificaciones() {
+    await actualizarContador(
+        "http://localhost:8080/api/notificacion/no-leidas/total",
+        "contador-notificaciones"
+    );
+}
+
+function ocultarPantallaCarga() {
+    const pantallaCarga = document.getElementById("pantalla-carga");
+
+    if (pantallaCarga) {
+        pantallaCarga.classList.add("oculto");
+
+        setTimeout(() => {
+            pantallaCarga.remove();
+        }, 300);
+    }
 }

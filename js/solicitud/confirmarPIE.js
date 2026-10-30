@@ -1,0 +1,188 @@
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (!verificarAutenticacion()) {
+        return;
+    }
+
+    const API_URL = "http://localhost:8080/api/pago-inicial/pie";
+
+    const parametros = new URLSearchParams(window.location.search);
+    const idSolicitud = parametros.get("id");
+
+    const botonCancelar = document.getElementById("cancelar");
+    const botonConfirmar = document.getElementById("confirmar-pago");
+    const botonRechazar = document.getElementById("rechazar-pie");
+
+    if (!idSolicitud || !/^\d+$/.test(idSolicitud) || Number(idSolicitud) <= 0) {
+        mostrarMensaje("El código de solicitud no es válido.", "danger");
+        deshabilitarBotones();
+        return;
+    }
+
+    botonCancelar.addEventListener("click", () => {
+        window.location.href = "/pages/solicitud/gestionarSolicitudesPIE.html";
+    });
+
+    botonRechazar.href =
+        `/pages/solicitud/rechazarPIE.html?id=${idSolicitud}`;
+
+    botonConfirmar.addEventListener("click", confirmarPagoInicial);
+
+    cargarDetallePagoInicial();
+
+    async function cargarDetallePagoInicial() {
+        try {
+            const respuesta = await fetchAutenticado(
+                `${API_URL}/detalle/${idSolicitud}`
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok || !resultado.success) {
+                throw new Error(
+                    resultado.message || "No se pudo obtener el detalle del pago inicial."
+                );
+            }
+
+            mostrarDetalle(resultado.data);
+
+        } catch (error) {
+            mostrarMensaje(error.message, "danger");
+            deshabilitarBotones();
+        }
+    }
+
+    function mostrarDetalle(pago) {
+        document.getElementById("id-solicitud").textContent =
+            pago.idSolicitud;
+
+        document.getElementById("titulo-solicitud").textContent =
+            pago.tituloSolicitud || "-";
+
+        document.getElementById("fecha-solicitud").textContent =
+            formatearFecha(pago.fechaRegistroSolicitud);
+
+        document.getElementById("id-asignacion").textContent =
+            pago.idAsignacionInicial;
+
+        document.getElementById("monto-asignado").textContent =
+            formatearMonto(pago.montoAsignadoInicial);
+
+        document.getElementById("fecha-asignacion").textContent =
+            formatearFecha(pago.fechaRegistroAsignacion);
+
+        document.getElementById("id-pago").textContent =
+            pago.idPagoInicial;
+
+        document.getElementById("monto-pago").textContent =
+            formatearMonto(pago.montoPago);
+
+        document.getElementById("estado-pago").textContent =
+            pago.estadoPago || "-";
+
+        document.getElementById("medio-pago").textContent =
+            pago.nombreMedioPago || "-";
+
+        document.getElementById("hora-operacion").textContent =
+            pago.horaOperacion || "-";
+
+        document.getElementById("numero-operacion").textContent =
+            pago.numeroOperacion || "-";
+    }
+
+    async function confirmarPagoInicial() {
+        const confirmar = window.confirm(
+            "¿Estás seguro de confirmar el pago inicial de esta solicitud?"
+        );
+
+        if (!confirmar) {
+            return;
+        }
+
+        botonConfirmar.disabled = true;
+        botonRechazar.classList.add("disabled");
+        botonCancelar.disabled = true;
+
+        try {
+            const respuesta = await fetchAutenticado(
+                `${API_URL}/confirmar/${idSolicitud}`,
+                {
+                    method: "PUT"
+                }
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok || !resultado.success) {
+                throw new Error(
+                    resultado.message || "No se pudo confirmar el pago inicial."
+                );
+            }
+
+            mostrarMensaje(
+                "El pago inicial fue confirmado correctamente.",
+                "success"
+            );
+
+            setTimeout(() => {
+                window.location.href =
+                    "/pages/solicitud/gestionarSolicitudesPIE.html";
+            }, 1200);
+
+        } catch (error) {
+            mostrarMensaje(error.message, "danger");
+
+            botonConfirmar.disabled = false;
+            botonRechazar.classList.remove("disabled");
+            botonCancelar.disabled = false;
+        }
+    }
+
+    function formatearMonto(monto) {
+        if (monto === null || monto === undefined) {
+            return "-";
+        }
+
+        return `S/ ${Number(monto).toFixed(2)}`;
+    }
+
+    function formatearFecha(fecha) {
+        if (!fecha) {
+            return "-";
+        }
+
+        const valor = new Date(fecha);
+
+        if (Number.isNaN(valor.getTime())) {
+            return fecha;
+        }
+
+        return valor.toLocaleString("es-PE");
+    }
+
+    function mostrarMensaje(mensaje, tipo) {
+        const contenedor = document.getElementById("mensaje-container");
+
+        contenedor.innerHTML = "";
+
+        const alerta = document.createElement("div");
+        alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+        alerta.setAttribute("role", "alert");
+        alerta.textContent = mensaje;
+
+        const botonCerrar = document.createElement("button");
+        botonCerrar.type = "button";
+        botonCerrar.className = "btn-close";
+        botonCerrar.setAttribute("data-bs-dismiss", "alert");
+        botonCerrar.setAttribute("aria-label", "Cerrar");
+
+        alerta.appendChild(botonCerrar);
+        contenedor.appendChild(alerta);
+    }
+
+    function deshabilitarBotones() {
+        botonConfirmar.disabled = true;
+        botonRechazar.classList.add("disabled");
+    }
+});
