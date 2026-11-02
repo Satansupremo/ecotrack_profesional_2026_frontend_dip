@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "/pages/auth/register.html"
     ];
 
-    // Solo redirigir al inicio si estamos en login o registro.
     if (!paginasAuth.includes(window.location.pathname)) {
         return;
     }
@@ -24,25 +23,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-function obtenerTokenValido() {
+function decodificarPayloadTokenAuth() {
+
     const token = sessionStorage.getItem("token");
 
     if (!token) {
-        return false;
+        return null;
     }
 
     try {
+
         const partes = token.split(".");
 
         if (partes.length !== 3) {
-            return false;
+            return null;
         }
 
         const payloadBase64 = partes[1]
             .replace(/-/g, "+")
             .replace(/_/g, "/");
 
-        const payload = JSON.parse(
+        return JSON.parse(
             atob(
                 payloadBase64.padEnd(
                     Math.ceil(payloadBase64.length / 4) * 4,
@@ -51,22 +52,56 @@ function obtenerTokenValido() {
             )
         );
 
-        return Boolean(
-            payload.sub &&
-            payload.exp &&
-            payload.exp > Math.floor(Date.now() / 1000)
-        );
-
     } catch (error) {
-        console.error("No se pudo validar la sesión:", error);
-        return false;
+
+        return null;
     }
 }
 
+function obtenerTokenValido() {
+
+    const payload = decodificarPayloadTokenAuth();
+
+    return Boolean(
+        payload &&
+        payload.sub &&
+        payload.exp &&
+        payload.exp > Math.floor(Date.now() / 1000)
+    );
+}
+
+function obtenerRolUsuario() {
+
+    const payload = decodificarPayloadTokenAuth();
+
+    if (!payload || !obtenerTokenValido()) {
+        return null;
+    }
+
+    return payload.rol || null;
+}
+
 function verificarAutenticacion() {
+
     if (!obtenerTokenValido()) {
         limpiarSesion();
         window.location.replace("/pages/auth/login.html");
+        return false;
+    }
+
+    return true;
+}
+
+function verificarRolPermitido(rolesPermitidos) {
+
+    if (!verificarAutenticacion()) {
+        return false;
+    }
+
+    const rol = obtenerRolUsuario();
+
+    if (!rol || !rolesPermitidos.includes(rol)) {
+        window.location.replace("/index.html");
         return false;
     }
 
@@ -102,10 +137,10 @@ async function fetchAutenticado(url, opciones = {}) {
         headers
     });
 
-    if (respuesta.status === 401 || respuesta.status === 403) {
+    if (respuesta.status === 401) {
         limpiarSesion();
         window.location.replace("/pages/auth/login.html");
-        throw new Error("No tienes autorización o tu sesión ha expirado.");
+        throw new Error("La sesión ha expirado o no es válida.");
     }
 
     return respuesta;

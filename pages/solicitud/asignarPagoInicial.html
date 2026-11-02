@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
+
 <body class="min-vh-100 d-flex flex-column">
 
     <div id="pantalla-carga">
@@ -47,7 +50,8 @@
                         </p>
                     </div>
 
-                    <form id="form-asignacion">
+                    <form id="form-asignacion" novalidate>
+
                         <div class="mb-4">
                             <label for="monto-inicial" class="form-label">
                                 Monto inicial
@@ -55,34 +59,50 @@
 
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input
-                                    type="number"
+                                <input type="number"
                                     class="form-control"
                                     id="monto-inicial"
                                     name="montoAsignadoInicial"
                                     min="0.01"
                                     step="0.01"
-                                    placeholder="Ingrese el monto inicial"
-                                    
-                                >
+                                    placeholder="Ingrese el monto inicial">
                             </div>
+
                             <div class="form-text">
                                 El monto debe ser mayor a cero.
                             </div>
                         </div>
 
+                        <div class="mb-4">
+                            <label for="razon" class="form-label fw-semibold">
+                                Razón de la asignación
+                            </label>
+
+                            <textarea
+                                id="razon"
+                                name="razon"
+                                class="form-control"
+                                rows="3"
+                                maxlength="500"
+                                placeholder="Explique el motivo de la asignación inicial"></textarea>
+                        </div>
+
                         <div class="d-flex justify-content-end gap-2">
                             <a href="/pages/solicitud/gestionarSolicitudesPendientes.html"
-                               class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                                class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancelar
                             </a>
 
-                            <button type="submit" id="btn-confirmar-asignacion"
-                                    class="btn btn-success" disabled>
+                            <button type="submit"
+                                id="btn-confirmar-asignacion"
+                                class="btn btn-success"
+                                disabled>
                                 <i class="bi bi-check-circle me-1"></i>
                                 Registrar asignación inicial
                             </button>
                         </div>
+
                     </form>
 
                 </div>
@@ -91,11 +111,55 @@
         </div>
     </main>
 
+    <div class="modal fade"
+        id="modal-confirmacion"
+        tabindex="-1"
+        aria-labelledby="titulo-confirmacion"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="titulo-confirmacion">
+                        Confirmar asignación inicial
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas registrar la asignación inicial
+                    para esta solicitud?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                        No, cancelar
+                    </button>
+
+                    <button type="button"
+                        id="btn-aceptar-registro"
+                        class="btn btn-success">
+                        Sí, registrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div id="site-footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/auth-guard.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/solicitud/asignarPagoInicial.js"></script>
+
 </body>
 </html>

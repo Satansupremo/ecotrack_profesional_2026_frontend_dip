@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -132,8 +131,7 @@
                     <div class="col-md-4">
                         <label class="text-secondary small">Estado del pago</label>
                         <p class="mb-0">
-                            <span class="badge bg-warning-subtle text-warning-emphasis"
-                                id="estado-pago">-</span>
+                            <span class="badge bg-warning-subtle text-warning-emphasis" id="estado-pago">-</span>
                         </p>
                     </div>
 
@@ -178,6 +176,38 @@
 
     </main>
 
+    <div class="modal fade" id="modal-confirmacion" tabindex="-1" aria-labelledby="titulo-confirmacion"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="titulo-confirmacion">
+                        Confirmar pago inicial
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas confirmar el pago inicial de esta solicitud?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        No, cancelar
+                    </button>
+
+                    <button type="button" id="btn-aceptar-confirmacion" class="btn btn-success">
+                        Sí, confirmar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div id="site-footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -186,4 +216,5 @@
     <script src="/js/solicitud/confirmarPIE.js"></script>
 
 </body>
+
 </html>

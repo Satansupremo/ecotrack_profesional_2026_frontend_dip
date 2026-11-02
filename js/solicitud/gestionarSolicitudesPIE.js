@@ -97,8 +97,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             actualizarPaginacion();
 
         } catch (error) {
-            console.error("Error al cargar solicitudes PIE:", error);
-
             tabla.innerHTML = `
                 <tr>
                     <td colspan="6" class="text-center text-danger py-4">

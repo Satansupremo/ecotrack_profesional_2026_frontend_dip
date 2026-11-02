@@ -38,8 +38,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             renderizarSolicitud(resultado.data);
 
         } catch (error) {
-            console.error("Error al consultar solicitud:", error);
-
             detalleContainer.innerHTML = "";
 
             mostrarMensaje(
@@ -144,13 +142,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function obtenerClaseEstado(estado) {
         const estados = {
-            PENDIENTE: "text-bg-warning",
+            PENDIENTE: "text-bg-success",
             PAGO_INICIAL_PENDIENTE: "text-bg-warning",
-            PAGO_INICIAL_EFECTUADO: "text-bg-info",
-            PAGO_INICIAL_CONFIRMADO: "text-bg-info",
-            PAGO_TOTAL_PENDIENTE: "text-bg-warning",
-            PAGO_TOTAL_EFECTUADO: "text-bg-info",
-            PAGO_TOTAL_CONFIRMADO: "text-bg-info",
+            PAGO_INICIAL_EFECTUADO: "text-bg-warning",
+            PAGO_INICIAL_CONFIRMADO: "text-bg-warning",
+
+            PAGO_TOTAL_PENDIENTE: "text-bg-dark",
+            PAGO_TOTAL_EFECTUADO: "text-bg-dark",
+            PAGO_TOTAL_CONFIRMADO: "text-bg-dark",
             PROGRAMADO: "text-bg-primary",
             FINALIZADO: "text-bg-success",
             CANCELADO: "text-bg-danger"

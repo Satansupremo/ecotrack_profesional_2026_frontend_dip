@@ -91,14 +91,17 @@ document.addEventListener("DOMContentLoaded", () => {
             pago.numeroOperacion || "-";
     }
 
-    async function confirmarPagoInicial() {
-        const confirmar = window.confirm(
-            "¿Estás seguro de confirmar el pago inicial de esta solicitud?"
-        );
+   async function confirmarPagoInicial() {
+    const modal = new bootstrap.Modal(
+        document.getElementById("modal-confirmacion")
+    );
 
-        if (!confirmar) {
-            return;
-        }
+    modal.show();
+
+    const botonAceptar = document.getElementById("btn-aceptar-confirmacion");
+
+    botonAceptar.onclick = async () => {
+        modal.hide();
 
         botonConfirmar.disabled = true;
         botonRechazar.classList.add("disabled");
@@ -137,7 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
             botonRechazar.classList.remove("disabled");
             botonCancelar.disabled = false;
         }
-    }
+    };
+}
 
     function formatearMonto(monto) {
         if (monto === null || monto === undefined) {

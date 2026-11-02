@@ -35,14 +35,13 @@
 
             <h2 class="fw-bold text-dark">Rechazar pago inicial</h2>
 
-            <p class="text-secondary">
+            <p class="text-secondary mb-0">
                 Revisa los datos del pago e indica el motivo por el cual será rechazado.
             </p>
         </div>
 
         <div id="mensaje-container"></div>
 
-        <!-- Información de la solicitud -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3">
                 <h5 class="fw-semibold mb-0">
@@ -77,8 +76,7 @@
                     <div class="col-md-4">
                         <label class="text-secondary small">Estado del pago</label>
                         <p class="mb-0">
-                            <span class="badge bg-warning-subtle text-warning-emphasis"
-                                id="estado-pago">-</span>
+                            <span class="badge bg-warning-subtle text-warning-emphasis" id="estado-pago">-</span>
                         </p>
                     </div>
 
@@ -101,7 +99,6 @@
             </div>
         </div>
 
-        <!-- Motivo del rechazo -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3">
                 <h5 class="fw-semibold mb-0">
@@ -115,8 +112,7 @@
                     Descripción
                 </label>
 
-                <textarea class="form-control" id="descripcion-rechazo" rows="4"
-                    maxlength="1000" required
+                <textarea class="form-control" id="descripcion-rechazo" rows="4" maxlength="1000" required
                     placeholder="Indica el motivo por el cual se rechaza el pago inicial..."></textarea>
 
                 <div class="d-flex justify-content-between mt-2">
@@ -130,9 +126,7 @@
             </div>
         </div>
 
-        <!-- Acciones -->
         <div class="d-flex flex-wrap justify-content-end gap-2">
-
             <button type="button" class="btn btn-outline-secondary" id="cancelar">
                 <i class="bi bi-arrow-left me-1"></i>
                 Cancelar
@@ -142,7 +136,6 @@
                 <i class="bi bi-x-circle me-1"></i>
                 Rechazar pago inicial
             </button>
-
         </div>
 
     </main>

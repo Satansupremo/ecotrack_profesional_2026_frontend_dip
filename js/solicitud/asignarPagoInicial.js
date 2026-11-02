@@ -1,3 +1,4 @@
+
 const API_SOLICITUD = "http://localhost:8080/api/solicitud";
 const API_ASIGNACION = "http://localhost:8080/api/asignacion-inicial";
 
@@ -13,11 +14,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const codigoSolicitud = document.getElementById("codigo-solicitud");
     const formulario = document.getElementById("form-asignacion");
     const montoInicial = document.getElementById("monto-inicial");
+    const razon = document.getElementById("razon");
     const botonConfirmar = document.getElementById("btn-confirmar-asignacion");
+    const botonAceptar = document.getElementById("btn-aceptar-registro");
     const mensajeContainer = document.getElementById("mensaje-container");
 
+    const modalElemento = document.getElementById("modal-confirmacion");
+    const modalConfirmacion = new bootstrap.Modal(modalElemento);
+
     if (!Number.isInteger(idSolicitud) || idSolicitud <= 0) {
-        mostrarMensaje("Código de solicitud inválido.", "danger");
         return;
     }
 
@@ -26,12 +31,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     formulario.addEventListener("submit", async event => {
         event.preventDefault();
 
-        mensajeContainer.innerHTML = "";
-
-        const monto = Number(montoInicial.value);
+        const datos = {
+            montoAsignadoInicial: Number(montoInicial.value),
+            razon: razon.value.trim()
+        };
 
         botonConfirmar.disabled = true;
-        botonConfirmar.innerHTML = `
+
+        try {
+            const response = await fetchAutenticado(
+                `${API_ASIGNACION}/validar/${idSolicitud}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(datos)
+                }
+            );
+
+            const resultado = await response.json();
+
+            if (!response.ok || !resultado.success) {
+                mostrarMensaje(resultado.message, "danger");
+                return;
+            }
+
+            mensajeContainer.innerHTML = "";
+            modalConfirmacion.show();
+
+        } catch (error) {
+        } finally {
+            botonConfirmar.disabled = false;
+        }
+    });
+
+    botonAceptar.addEventListener("click", async () => {
+
+        const datos = {
+            montoAsignadoInicial: Number(montoInicial.value),
+            razon: razon.value.trim()
+        };
+
+        botonAceptar.disabled = true;
+        botonAceptar.innerHTML = `
             <span class="spinner-border spinner-border-sm me-2"></span>
             Registrando...
         `;
@@ -44,26 +87,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
-                        montoAsignadoInicial: monto
-                    })
+                    body: JSON.stringify(datos)
                 }
             );
 
             const resultado = await response.json();
 
             if (!response.ok || !resultado.success) {
+                modalConfirmacion.hide();
                 mostrarMensaje(resultado.message, "danger");
                 return;
             }
 
+            modalConfirmacion.hide();
             mostrarMensaje(resultado.message, "success");
 
             formulario.reset();
 
-            formulario.querySelectorAll("input").forEach(input => {
-                input.disabled = true;
+            formulario.querySelectorAll("input, textarea").forEach(elemento => {
+                elemento.disabled = true;
             });
+
+            botonConfirmar.disabled = true;
 
             setTimeout(() => {
                 window.location.href =
@@ -71,19 +116,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 2000);
 
         } catch (error) {
-            console.error("Error al registrar la asignación inicial:", error);
-
-            mostrarMensaje(
-                "No se pudo obtener una respuesta del servidor.",
-                "danger"
-            );
-
+            modalConfirmacion.hide();
         } finally {
-            botonConfirmar.disabled = false;
-            botonConfirmar.innerHTML = `
-                <i class="bi bi-check-circle me-1"></i>
-                Registrar asignación inicial
-            `;
+            if (!botonConfirmar.disabled) {
+                botonAceptar.disabled = false;
+                botonAceptar.innerHTML = "Sí, registrar";
+            }
         }
     });
 
@@ -96,31 +134,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             const resultado = await response.json();
 
             if (!response.ok || !resultado.success) {
-                throw new Error(resultado.message);
+                mostrarMensaje(resultado.message, "danger");
+                return;
             }
 
             const solicitud = resultado.data;
 
             if (solicitud.estado !== "PENDIENTE") {
-                throw new Error("La solicitud ya no se encuentra pendiente.");
+                return;
             }
 
             codigoSolicitud.textContent = solicitud.idSolicitud;
             botonConfirmar.disabled = false;
 
         } catch (error) {
-            console.error("Error al verificar la solicitud:", error);
-
-            codigoSolicitud.textContent = "No disponible";
-
-            mostrarMensaje(
-                error.message || "No se pudo obtener una respuesta del servidor.",
-                "danger"
-            );
-
-            formulario.querySelectorAll("input, button").forEach(elemento => {
-                elemento.disabled = true;
-            });
         }
     }
 

@@ -51,8 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 2000);
 
         } catch (error) {
-            console.error("Error al registrar solicitud:", error);
-
             mostrarMensaje(
                 "No se pudo obtener una respuesta del servidor.",
                 "danger"

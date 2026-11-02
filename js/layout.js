@@ -32,7 +32,6 @@ async function inicializarLayout() {
 
         actualizarHeader();
     } catch (error) {
-        console.error("Error al cargar los componentes:", error);
     }
 }
 
@@ -79,7 +78,6 @@ function obtenerDatosToken() {
             rol: payload.rol
         };
     } catch (error) {
-        console.error("No se pudo leer el JWT:", error);
         return null;
     }
 }
@@ -93,8 +91,11 @@ function actualizarHeader() {
     const logoutButton = document.getElementById("logout-button");
 
     const menuMisSolicitudes = document.getElementById("menu-mis-solicitudes");
+    const menuMisProgramaciones = document.getElementById("menu-mis-programaciones");
     const menuSolicitudesPendientes = document.getElementById("menu-solicitudes-pendientes");
     const menuSolicitudesPIE = document.getElementById("menu-solicitudes-pie");
+    const menuSolicitudesPIConfirmadas = document.getElementById("menu-solicitudes-pi-confirmadas");
+    const menuSolicitudesPagoTotal = document.getElementById("menu-solicitudes-pago-total");
 
     if (!accessMenu || !userMenu) {
         return;
@@ -118,17 +119,29 @@ function actualizarHeader() {
 
         menuMisSolicitudes?.classList.remove("d-none");
 
+        const rolesGestionProgramaciones = ["ADMINISTRADOR", "JEFE_UNIDAD"];
+        const tienePermisoProgramaciones = rolesGestionProgramaciones.includes(usuario.rol);
+
+        menuMisProgramaciones?.classList.toggle(
+            "d-none",
+            !tienePermisoProgramaciones
+        );
+
         const rolesGestionSolicitudes = ["ADMINISTRADOR", "COORDINADOR"];
         const tienePermisoGestion = rolesGestionSolicitudes.includes(usuario.rol);
 
         if (tienePermisoGestion) {
             menuSolicitudesPendientes?.classList.remove("d-none");
             menuSolicitudesPIE?.classList.remove("d-none");
+            menuSolicitudesPIConfirmadas?.classList.remove("d-none");
+            menuSolicitudesPagoTotal?.classList.remove("d-none");
 
             actualizarContadoresSolicitudes();
         } else {
             menuSolicitudesPendientes?.classList.add("d-none");
             menuSolicitudesPIE?.classList.add("d-none");
+            menuSolicitudesPIConfirmadas?.classList.add("d-none");
+            menuSolicitudesPagoTotal?.classList.add("d-none");
         }
 
         actualizarContadorNotificaciones();
@@ -138,8 +151,11 @@ function actualizarHeader() {
         userMenu.classList.add("d-none");
         notificationMenu?.classList.add("d-none");
 
+        menuMisProgramaciones?.classList.add("d-none");
         menuSolicitudesPendientes?.classList.add("d-none");
         menuSolicitudesPIE?.classList.add("d-none");
+        menuSolicitudesPIConfirmadas?.classList.add("d-none");
+        menuSolicitudesPagoTotal?.classList.add("d-none");
     }
 
     if (logoutButton && !logoutButton.dataset.eventoRegistrado) {
@@ -164,6 +180,14 @@ async function actualizarContadoresSolicitudes() {
         actualizarContador(
             "http://localhost:8080/api/solicitud/pie/total",
             "contador-solicitudes-pie"
+        ),
+        actualizarContador(
+            "http://localhost:8080/api/solicitud/pi-confirmadas/total",
+            "contador-solicitudes-pi-confirmadas"
+        ),
+        actualizarContador(
+            "http://localhost:8080/api/solicitud/pago-total/total",
+            "contador-solicitudes-pago-total"
         )
     ]);
 }
@@ -194,7 +218,6 @@ async function actualizarContador(url, elementoId) {
         }
 
     } catch (error) {
-        console.error(`Error al actualizar ${elementoId}:`, error);
         contador.textContent = "";
         contador.classList.add("d-none");
     }

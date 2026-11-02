@@ -57,13 +57,6 @@ botonActualizar.addEventListener("click", () => {
             async function leerRespuesta(respuesta, nombre) {
                 const contenido = await respuesta.text();
 
-                console.log(`Respuesta de ${nombre}:`, {
-                    url: respuesta.url,
-                    status: respuesta.status,
-                    contentType: respuesta.headers.get("content-type"),
-                    contenido: contenido.substring(0, 500)
-                });
-
                 try {
                     return JSON.parse(contenido);
                 } catch (error) {
@@ -104,8 +97,6 @@ sessionStorage.setItem("paginaSolicitudesPendientes", paginaActual);
             actualizarPaginacion();
 
         } catch (error) {
-            console.error("Error al cargar solicitudes pendientes:", error);
-
             tabla.innerHTML = `
                 <tr>
                     <td colspan="6" class="text-center text-danger py-4">

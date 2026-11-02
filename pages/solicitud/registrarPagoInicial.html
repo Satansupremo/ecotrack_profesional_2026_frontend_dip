@@ -25,102 +25,119 @@
     <div id="site-header"></div>
 
     <main class="flex-grow-1 d-flex align-items-center py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
 
-                <div class="mb-4">
-                    <a href="/pages/solicitud/gestionarMisSolicitudes.html"
-                        class="btn btn-outline-secondary btn-sm mb-3">
-                        <i class="bi bi-arrow-left me-1"></i>
-                        Volver
-                    </a>
+                    <div class="mb-4">
+                        <a href="/pages/solicitud/gestionarMisSolicitudes.html"
+                            class="btn btn-outline-secondary btn-sm mb-3">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Volver
+                        </a>
 
-                    <h2 class="fw-bold">Registrar pago inicial</h2>
-                    <p class="text-secondary mb-0">
-                        Ingresa la información de la operación realizada para tu solicitud.
-                    </p>
-                </div>
+                        <h2 class="fw-bold">Registrar pago inicial</h2>
+                        <p class="text-secondary mb-0">
+                            Ingresa la información de la operación realizada para tu solicitud.
+                        </p>
+                    </div>
 
-                <div id="mensaje-container"></div>
+                    <div id="mensaje-container"></div>
 
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Solicitud</label>
-                            <p class="mb-0" id="codigo-solicitud">Cargando...</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Monto asignado</label>
-                            <h3 class="text-primary fw-bold mb-0" id="monto-asignado">
-                                Cargando...
-                            </h3>
-                        </div>
-
-                        <hr>
-
-                        <form id="formulario-pago" novalidate>
-
-                            <div class="mb-3">
-                                <label for="medio-pago" class="form-label">
-                                    Medio de pago
-                                </label>
-                                <select id="medio-pago" class="form-select">
-                                    <option value="">Selecciona un medio de pago</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="numero-cuenta" class="form-label fw-bold">
-                                    <i class="bi bi-bank me-1"></i>
-                                    Número de cuenta para realizar el pago
-                                </label>
-
-                                <input type="text"
-                                    class="form-control form-control-lg bg-primary-subtle text-primary-emphasis border-primary border-2 fw-bold fs-4 font-monospace"
-                                    id="numero-cuenta" readonly placeholder="Selecciona un medio de pago">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="monto" class="form-label">
-                                    Monto pagado
-                                </label>
-                                <input type="number" id="monto" class="form-control" min="0.01" step="0.01"
-                                    placeholder="Ingrese el monto">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="hora-operacion" class="form-label">
-                                    Hora de operación
-                                </label>
-                                <input type="time" id="hora-operacion" class="form-control">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Solicitud</label>
+                                <p class="mb-0" id="codigo-solicitud">Cargando...</p>
                             </div>
 
                             <div class="mb-4">
-                                <label for="numero-operacion" class="form-label">
-                                    Número de operación
+                                <label class="form-label fw-semibold">Monto asignado</label>
+                                <h3 class="text-primary fw-bold mb-0" id="monto-asignado">
+                                    Cargando...
+                                </h3>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="razon" class="form-label fw-semibold">
+                                    Motivo de la asignación
                                 </label>
-                                <input type="text" id="numero-operacion" class="form-control" maxlength="100"
-                                    placeholder="Ingrese el número de operación">
+                                <textarea id="razon" class="form-control" rows="3" readonly
+                                    placeholder="Cargando motivo..."></textarea>
                             </div>
 
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="/pages/solicitud/gestionarMisSolicitudes.html"
-                                    class="btn btn-outline-secondary">
-                                    Cancelar
-                                </a>
+                            <hr>
 
-                                <button type="submit" id="boton-registrar" class="btn btn-primary">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    Registrar pago
-                                </button>
-                            </div>
+                            <form id="formulario-pago" novalidate>
 
-                        </form>
+                                <div class="mb-3">
+                                    <label for="medio-pago" class="form-label">
+                                        Medio de pago
+                                    </label>
+                                    <select id="medio-pago" class="form-select">
+                                        <option value="">Selecciona un medio de pago</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="numero-cuenta" class="form-label fw-bold">
+                                        <i class="bi bi-bank me-1"></i>
+                                        Número de cuenta para realizar el pago
+                                    </label>
+
+                                    <input type="text"
+                                        class="form-control form-control-lg bg-primary-subtle text-primary-emphasis border-primary border-2 fw-bold fs-4 font-monospace"
+                                        id="numero-cuenta" readonly placeholder="Selecciona un medio de pago">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="monto" class="form-label">
+                                        Monto pagado
+                                    </label>
+                                    <input type="number" id="monto" class="form-control" min="0.01" step="0.01"
+                                        placeholder="Ingrese el monto" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="fecha-operacion" class="form-label">
+                                        Fecha de operación
+                                    </label>
+                                    <input type="date" id="fecha-operacion" class="form-control" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="hora-operacion" class="form-label">
+                                        Hora de operación
+                                    </label>
+                                    <input type="time" id="hora-operacion" class="form-control" disabled>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="numero-operacion" class="form-label">
+                                        Número de operación
+                                    </label>
+                                    <input type="text" id="numero-operacion" class="form-control" maxlength="100"
+                                        placeholder="Ingrese el número de operación" disabled>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="/pages/solicitud/gestionarMisSolicitudes.html"
+                                        class="btn btn-outline-secondary">
+                                        Cancelar
+                                    </a>
+
+                                    <button type="submit" id="boton-registrar" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Registrar pago
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
     </main>

@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             try {
                 resultado = JSON.parse(texto);
             } catch (error) {
-                console.error("Respuesta no válida:", texto);
                 throw new Error("El servidor devolvió una respuesta no válida.");
             }
 
@@ -40,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             renderizarSolicitud(resultado.data);
 
         } catch (error) {
-            console.error("Error al consultar la solicitud:", error);
             contenidoSolicitud.innerHTML = "";
             mostrarMensaje(error.message, "danger");
         }

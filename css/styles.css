@@ -25,3 +25,67 @@
     width: 3rem;
     height: 3rem;
 }
+
+/* Labels de formularios */
+.form-label {
+    color: #343a40;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+}
+
+/* Campos de entrada */
+.form-control {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    color: #212529;
+    transition: all 0.2s ease;
+}
+
+/* Campos al seleccionarlos */
+.form-control:focus {
+    background-color: #ffffff;
+    border-color: #ff3131;
+    box-shadow: 0 0 0 0.2rem rgba(255, 49, 49, 0.12);
+}
+
+/* Placeholder */
+.form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+/* Grupo de entrada del monto */
+.input-group-text {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem 0 0 0.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.input-group .form-control {
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Texto de ayuda */
+.form-text {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+}
+
+/* Separadores */
+form hr {
+    border-color: #dee2e6;
+    opacity: 1;
+}   
+
+/* Texto dorado destacado para buenas noticias */
+.texto-dorado {
+    color: #FFB800 !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 1px rgba(255, 184, 0, 0.7);
+}

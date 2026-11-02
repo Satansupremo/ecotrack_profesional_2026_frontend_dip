@@ -1,4 +1,3 @@
-
 <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm py-3">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-3 me-4" href="/index.html">
@@ -117,12 +116,50 @@
 
                                 <span>
                                     <i class="bi bi-cash-coin text-danger me-2"></i>
-                                    Gestionar solicitudes PIE
+                                    Gestionar solicitudes PI efectuadas
                                 </span>
 
-                                <span id="contador-solicitudes-pie"
+                                <span id="contador-solicitudes-pie" class="badge rounded-pill bg-danger d-none ms-3">
+                                </span>
+                            </a>
+                        </li>
+
+
+                        <li id="menu-solicitudes-pi-confirmadas" class="d-none">
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                                href="/pages/solicitud/gestionarSolicitudesPIConfirmadas.html">
+
+                                <span>
+                                    <i class="bi bi-cash-stack text-danger me-2"></i>
+                                    Gestionar solicitudes PI confirmadas
+                                </span>
+
+                                <span id="contador-solicitudes-pi-confirmadas"
                                     class="badge rounded-pill bg-danger d-none ms-3">
                                 </span>
+                            </a>
+                        </li>
+                        <li id="menu-solicitudes-pago-total" class="d-none">
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                                href="/pages/solicitud/gestionarSolicitudesPagoTotal.html">
+
+                                <span>
+                                    <i class="bi bi-cash-stack text-danger me-2"></i>
+                                    Gestionar solicitudes PT efectuadas y confirmadas
+                                </span>
+
+                                <span id="contador-solicitudes-pago-total"
+                                    class="badge rounded-pill bg-danger d-none ms-3">
+                                </span>
+                            </a>
+                        </li>
+
+                        <li id="menu-mis-programaciones" class="d-none">
+                            <a class="dropdown-item fs-6 py-2"
+                                href="/pages/programacion/gestionarMisProgramaciones.html">
+
+                                <i class="bi bi-calendar-check text-danger me-2"></i>
+                                Gestionar mis programaciones
                             </a>
                         </li>
 

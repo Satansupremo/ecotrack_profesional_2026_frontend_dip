@@ -15,29 +15,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonAnterior = document.getElementById("pagina-anterior");
     const botonSiguiente = document.getElementById("pagina-siguiente");
 
-    /*
-    let paginaActual = 0;
-    let totalPaginas = 0;
-    */
-
     let paginaActual = Number(sessionStorage.getItem("paginaMisSolicitudes")) || 0;
-let totalPaginas = 0;
+    let totalPaginas = 0;
 
     botonAnterior.addEventListener("click", () => {
-    if (paginaActual > 0) {
-        paginaActual--;
-        sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
-        cargarSolicitudes();
-    }
-});
+        if (paginaActual > 0) {
+            paginaActual--;
+            sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
+            cargarSolicitudes();
+        }
+    });
 
-botonSiguiente.addEventListener("click", () => {
-    if (paginaActual < totalPaginas - 1) {
-        paginaActual++;
-        sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
-        cargarSolicitudes();
-    }
-});
+    botonSiguiente.addEventListener("click", () => {
+        if (paginaActual < totalPaginas - 1) {
+            paginaActual++;
+            sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
+            cargarSolicitudes();
+        }
+    });
 
     await cargarSolicitudes();
 
@@ -54,13 +49,6 @@ botonSiguiente.addEventListener("click", () => {
 
             async function leerRespuesta(respuesta, nombre) {
                 const contenido = await respuesta.text();
-
-                console.log(`Respuesta de ${nombre}:`, {
-                    url: respuesta.url,
-                    status: respuesta.status,
-                    contentType: respuesta.headers.get("content-type"),
-                    contenido: contenido.substring(0, 500)
-                });
 
                 try {
                     return JSON.parse(contenido);
@@ -90,19 +78,17 @@ botonSiguiente.addEventListener("click", () => {
             totalLabel.textContent = total.data;
             totalPaginas = paginas.data;
             if (totalPaginas === 0) {
-    paginaActual = 0;
-} else if (paginaActual >= totalPaginas) {
-    paginaActual = totalPaginas - 1;
-}
+                paginaActual = 0;
+            } else if (paginaActual >= totalPaginas) {
+                paginaActual = totalPaginas - 1;
+            }
 
-sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
+            sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
 
             renderizarSolicitudes(listado.data || []);
             actualizarPaginacion();
 
         } catch (error) {
-            console.error("Error al cargar solicitudes:", error);
-
             tabla.innerHTML = `
                 <tr>
                     <td colspan="5" class="text-center text-danger py-4">
@@ -143,9 +129,19 @@ sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
                 solicitud.estado === "PAGO_INICIAL_PENDIENTE"
                     ? `
                     <a href="/pages/solicitud/registrarPagoInicial.html?id=${solicitud.idSolicitud}"
-                       class="btn btn-sm btn-outline-primary">
+                       class="btn btn-sm btn-outline-warning    ">
                         <i class="bi bi-credit-card me-1"></i>
                         Registrar pago inicial
+                    </a>
+                `
+                    : "";
+            const botonPagoTotal =
+                solicitud.estado === "PAGO_TOTAL_PENDIENTE"
+                    ? `
+                    <a href="/pages/solicitud/registrarPagoTotal.html?id=${solicitud.idSolicitud}"
+                    class="btn btn-sm btn-outline-dark">
+                        <i class="bi bi-credit-card me-1"></i>
+                        Registrar pago total
                     </a>
                 `
                     : "";
@@ -167,23 +163,27 @@ sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
                         Ver
                     </a>
                     ${botonPagoInicial}
+                    ${botonPagoTotal}
                 </div>
             </td>
         `;
+
 
             tabla.appendChild(fila);
         });
     }
 
+
     function obtenerClaseEstado(estado) {
         const estados = {
-            PENDIENTE: "text-bg-warning",
+            PENDIENTE: "text-bg-success",
             PAGO_INICIAL_PENDIENTE: "text-bg-warning",
-            PAGO_INICIAL_EFECTUADO: "text-bg-info",
-            PAGO_INICIAL_CONFIRMADO: "text-bg-info",
-            PAGO_TOTAL_PENDIENTE: "text-bg-warning",
-            PAGO_TOTAL_EFECTUADO: "text-bg-info",
-            PAGO_TOTAL_CONFIRMADO: "text-bg-info",
+            PAGO_INICIAL_EFECTUADO: "text-bg-warning",
+            PAGO_INICIAL_CONFIRMADO: "text-bg-warning",
+
+            PAGO_TOTAL_PENDIENTE: "text-bg-dark",
+            PAGO_TOTAL_EFECTUADO: "text-bg-dark",
+            PAGO_TOTAL_CONFIRMADO: "text-bg-dark",
             PROGRAMADO: "text-bg-primary",
             FINALIZADO: "text-bg-success",
             CANCELADO: "text-bg-danger"
@@ -191,6 +191,7 @@ sessionStorage.setItem("paginaMisSolicitudes", paginaActual);
 
         return estados[estado] || "text-bg-secondary";
     }
+
 
     function actualizarPaginacion() {
         const totalVisible = totalPaginas > 0 ? totalPaginas : 0;

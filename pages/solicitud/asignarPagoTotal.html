@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack | Asignar pago total</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+
+<body class="min-vh-100 d-flex flex-column">
+
+    <div id="pantalla-carga">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+
+        <p class="mt-3 text-secondary fw-semibold">
+            Cargando...
+        </p>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="flex-grow-1 d-flex align-items-center py-5">
+        <div class="container">
+
+            <div class="mb-4">
+                <span class="badge text-bg-success mb-2">Gestión de solicitudes</span>
+                <h2 class="fw-bold">Asignar pago total</h2>
+                <p class="text-muted mb-0">
+                    Registra el monto total y las recomendaciones correspondientes a la solicitud seleccionada.
+                </p>
+            </div>
+
+            <div id="mensaje-container"></div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+
+                    <form id="form-asignacion" novalidate>
+
+                        <h5 class="fw-bold mb-4">Información de la asignación</h5>
+
+                        <div class="mb-4">
+                            <label class="form-label text-muted">Código de solicitud</label>
+                            <p id="codigo-solicitud" class="fw-semibold mb-0">
+                                Cargando...
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="monto-total" class="form-label">
+                                Monto total asignado
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text">S/</span>
+                                <input type="number" class="form-control" id="monto-total" name="montoAsignadoTotal"
+                                    min="0.01" step="0.01" placeholder="Ingrese el monto total">
+                            </div>
+
+                            <div class="form-text">
+                                El monto debe ser mayor a cero.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="razon-asignacion" class="form-label">
+                                Razón de la asignación total
+                            </label>
+
+                            <textarea class="form-control" id="razon-asignacion" rows="3"
+                                placeholder="Describe el motivo del monto total asignado..." ></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-4">Recomendaciones para la recolección</h5>
+
+                        <div class="mb-4">
+                            <label for="cantidad-unidades" class="form-label">
+                                Cantidad de unidades recomendadas
+                            </label>
+
+                            <input type="number" class="form-control" id="cantidad-unidades" name="cantidadUnidades"
+                                min="1" step="1" placeholder="Ingrese la cantidad de unidades">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="razon-cantidad-unidades" class="form-label">
+                                Razón de la cantidad de unidades
+                            </label>
+
+                            <textarea class="form-control" id="razon-cantidad-unidades" name="razonCantidadUnidades"
+                                rows="3"
+                                placeholder="Explique por qué se recomienda esta cantidad de unidades"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="equipo-seguridad" class="form-label">
+                                Equipo de seguridad recomendado
+                            </label>
+
+                            <textarea class="form-control" id="equipo-seguridad" name="equipoSeguridad" rows="3"
+                                placeholder="Indique los equipos de seguridad necesarios"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="otras-recomendaciones" class="form-label">
+                                Otras recomendaciones
+                                <span class="text-muted">(opcional)</span>
+                            </label>
+
+                            <textarea class="form-control" id="otras-recomendaciones" name="otrasRecomendaciones"
+                                rows="3" placeholder="Ingrese otras recomendaciones si corresponde"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/pages/solicitud/gestionarSolicitudesPIConfirmadas.html"
+                                class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </a>
+
+                            <button type="submit" id="btn-confirmar-asignacion" class="btn btn-success" disabled>
+                                <i class="bi bi-check-circle me-1"></i>
+                                Registrar asignación total
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div class="modal fade" id="modal-confirmacion" tabindex="-1" aria-labelledby="titulo-confirmacion"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="titulo-confirmacion">
+                        Confirmar asignación total
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas registrar la asignación total y las recomendaciones para esta solicitud?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        No, cancelar
+                    </button>
+
+                    <button type="button" id="btn-aceptar-confirmacion" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Sí, registrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="site-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/solicitud/asignarPagoTotal.js"></script>
+</body>
+
+</html>

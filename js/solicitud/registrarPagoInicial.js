@@ -10,28 +10,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     const API_MEDIO_PAGO = "http://localhost:8080/api/medio-pago";
 
     const parametros = new URLSearchParams(window.location.search);
-    const idSolicitud = parametros.get("id");
+    const idSolicitud = Number(parametros.get("id"));
 
     const codigoSolicitud = document.getElementById("codigo-solicitud");
     const montoAsignado = document.getElementById("monto-asignado");
+    const razon = document.getElementById("razon");
 
     const formulario = document.getElementById("formulario-pago");
     const medioPago = document.getElementById("medio-pago");
     const monto = document.getElementById("monto");
+
+    const fechaOperacion = document.getElementById("fecha-operacion");
     const horaOperacion = document.getElementById("hora-operacion");
     const numeroOperacion = document.getElementById("numero-operacion");
+
+    fechaOperacion.maxLength = 10;
+    fechaOperacion.setAttribute("inputmode", "numeric");
+    fechaOperacion.addEventListener("input", () => {
+        const valor = fechaOperacion.value.replace(/[^\d-]/g, "");
+        if (valor.length > 10) {
+            fechaOperacion.value = valor.slice(0, 10);
+            return;
+        }
+        fechaOperacion.value = valor;
+    });
 
     const numeroCuenta = document.getElementById("numero-cuenta");
     const botonRegistrar = document.getElementById("boton-registrar");
     const mensajeContainer = document.getElementById("mensaje-container");
 
-    let montoInicial = null;
+    let registroExitoso = false;
 
-    if (!idSolicitud || !Number.isInteger(Number(idSolicitud)) || Number(idSolicitud) <= 0) {
-        mostrarMensaje("No se proporcionó un código de solicitud válido.", "danger");
-        formulario.querySelectorAll("input, select, button").forEach(elemento => {
-            elemento.disabled = true;
-        });
+    if (!Number.isInteger(idSolicitud) || idSolicitud <= 0) {
+        deshabilitarFormulario();
         return;
     }
 
@@ -42,43 +53,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         const cuenta = opcionSeleccionada?.dataset.numeroCuenta || "";
 
         numeroCuenta.value = cuenta
-            ? cuenta.match(/.{1,4}/g).join(" - ")
+            ? cuenta.replace(/\s+/g, "").replace(/(\d{3})(?=\d)/g, "$1 ")
             : "";
+
+        actualizarEstadoFormulario();
     });
 
     await cargarInformacion();
 
-    formulario.addEventListener("submit", async (event) => {
+    formulario.addEventListener("submit", async event => {
         event.preventDefault();
 
-        if (montoInicial === null) {
-            mostrarMensaje("No se pudo obtener el monto asignado.", "danger");
-            return;
-        }
+        mensajeContainer.innerHTML = "";
 
-        const idMedioPago = medioPago.value;
-        const hora = horaOperacion.value;
-        const numero = numeroOperacion.value.trim();
+        const validacion = validarFormulario();
 
-        if (!idMedioPago || !hora || !numero) {
-            mostrarMensaje("Completa todos los campos del formulario.", "warning");
+        if (!validacion.success) {
+            mostrarMensaje(validacion.message, "danger");
+            const campo = document.getElementById(validacion.campo);
+            if (campo) {
+                campo.focus();
+            }
             return;
         }
 
         const request = {
-            idMedioPago: Number(idMedioPago),
-            monto: montoInicial,
-            horaOperacion: hora,
-            numeroOperacion: numero
+            idMedioPago: Number(medioPago.value),
+            monto: Number(monto.value),
+            fechaOperacion: fechaOperacion.value,
+            horaOperacion: horaOperacion.value.length === 5
+                ? `${horaOperacion.value}:00`
+                : horaOperacion.value,
+            numeroOperacion: numeroOperacion.value.trim()
         };
 
-        try {
-            botonRegistrar.disabled = true;
-            botonRegistrar.innerHTML = `
-                <span class="spinner-border spinner-border-sm me-1"></span>
-                Registrando...
-            `;
+        botonRegistrar.disabled = true;
+        botonRegistrar.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            Registrando...
+        `;
 
+        try {
             const respuesta = await fetchAutenticado(
                 `${API_PAGO_INICIAL}/pago/registrar/${idSolicitud}`,
                 {
@@ -93,31 +108,28 @@ document.addEventListener("DOMContentLoaded", async () => {
             const resultado = await leerRespuesta(respuesta);
 
             if (!respuesta.ok || !resultado.success) {
-                throw new Error(resultado.message || "No se pudo registrar el pago inicial.");
+                mostrarMensaje(resultado.message, "danger");
+                return;
             }
 
-            mostrarMensaje(
-                resultado.message || "Pago inicial registrado correctamente.",
-                "success"
-            );
+            registroExitoso = true;
 
-            formulario.querySelectorAll("input, select, button").forEach(elemento => {
-                elemento.disabled = true;
-            });
+            mostrarMensaje(resultado.message, "success");
+
+            deshabilitarFormulario();
 
             setTimeout(() => {
-                window.location.href = "/pages/solicitud/gestionarMisSolicitudes.html";
+                window.location.href =
+                    "/pages/solicitud/gestionarMisSolicitudes.html";
             }, 2500);
 
         } catch (error) {
-            console.error("Error al registrar el pago inicial:", error);
-            mostrarMensaje(error.message, "danger");
-
-            botonRegistrar.disabled = false;
-            botonRegistrar.innerHTML = `
-                <i class="bi bi-check-circle me-1"></i>
-                Registrar pago
-            `;
+            return;
+        } finally {
+            if (!registroExitoso) {
+                botonRegistrar.innerHTML = "Registrar pago";
+                actualizarEstadoFormulario();
+            }
         }
     });
 
@@ -128,44 +140,32 @@ document.addEventListener("DOMContentLoaded", async () => {
                 fetchAutenticado(`${API_MEDIO_PAGO}/listar`)
             ]);
 
-            console.log("Estado asignación:", respuestaAsignacion.status);
-            console.log("Estado medios de pago:", respuestaMedios.status);
-
-            const asignacion = await leerRespuesta(respuestaAsignacion);
-            const medios = await leerRespuesta(respuestaMedios);
-
-            console.log("Respuesta asignación:", asignacion);
-            console.log("Respuesta medios:", medios);
+            const [asignacion, medios] = await Promise.all([
+                leerRespuesta(respuestaAsignacion),
+                leerRespuesta(respuestaMedios)
+            ]);
 
             if (!respuestaAsignacion.ok || !asignacion.success) {
-                throw new Error(
-                    asignacion.message || "No se pudo obtener la asignación inicial."
-                );
+                mostrarMensaje(asignacion.message, "danger");
+                deshabilitarFormulario();
+                return;
             }
 
             if (!respuestaMedios.ok || !medios.success) {
-                throw new Error(
-                    medios.message || "No se pudieron obtener los medios de pago."
-                );
+                mostrarMensaje(medios.message, "danger");
+                deshabilitarFormulario();
+                return;
             }
 
-            montoInicial = Number(asignacion.data.montoAsignadoInicial);
-
-            if (!Number.isFinite(montoInicial) || montoInicial <= 0) {
-                throw new Error("El monto asignado no es válido.");
-            }
+            const montoInicial = Number(asignacion.data.montoAsignadoInicial);
 
             montoAsignado.textContent = `S/ ${montoInicial.toFixed(2)}`;
+            razon.value = asignacion.data.razon || "";
 
             cargarMediosPago(medios.data || []);
 
         } catch (error) {
-            console.error("Error al cargar información:", error);
-            mostrarMensaje(error.message, "danger");
-
-            formulario.querySelectorAll("input, select, button").forEach(elemento => {
-                elemento.disabled = true;
-            });
+            deshabilitarFormulario();
         }
     }
 
@@ -186,25 +186,66 @@ document.addEventListener("DOMContentLoaded", async () => {
             medioPago.appendChild(opcion);
         });
 
-        if (medios.length === 0) {
-            mostrarMensaje("No hay medios de pago disponibles.", "warning");
-            botonRegistrar.disabled = true;
-        }
+        actualizarEstadoFormulario();
     }
 
     async function leerRespuesta(respuesta) {
-        const contenido = await respuesta.text();
-
         try {
-            return JSON.parse(contenido);
-        } catch (error) {
-            throw new Error(
-                "El servidor no devolvió una respuesta JSON válida."
-            );
+            return await respuesta.json();
+        } catch {
+            return {};
         }
     }
 
+    function validarFormulario() {
+        if (!medioPago.value) {
+            return {
+                success: false,
+                message: "Selecciona un medio de pago.",
+                campo: "medio-pago"
+            };
+        }
+
+        if (!monto.value || Number(monto.value) <= 0) {
+            return {
+                success: false,
+                message: "El monto pagado debe ser mayor a cero.",
+                campo: "monto"
+            };
+        }
+
+        if (!fechaOperacion.value) {
+            return {
+                success: false,
+                message: "La fecha de operación es obligatoria.",
+                campo: "fecha-operacion"
+            };
+        }
+
+        if (!horaOperacion.value) {
+            return {
+                success: false,
+                message: "La hora de operación es obligatoria.",
+                campo: "hora-operacion"
+            };
+        }
+
+        if (!numeroOperacion.value.trim()) {
+            return {
+                success: false,
+                message: "El número de operación es obligatorio.",
+                campo: "numero-operacion"
+            };
+        }
+
+        return { success: true };
+    }
+
     function mostrarMensaje(mensaje, tipo) {
+        if (!mensaje) {
+            return;
+        }
+
         mensajeContainer.innerHTML = `
             <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
                 ${escaparHTML(mensaje)}
@@ -222,4 +263,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             "'": "&#39;"
         })[caracter]);
     }
+
+    function actualizarEstadoFormulario() {
+        const medioValido = medioPago.value !== "";
+
+        const camposPago = [
+            monto,
+            fechaOperacion,
+            horaOperacion,
+            numeroOperacion
+        ];
+
+        camposPago.forEach(campo => {
+            campo.disabled = !medioValido;
+        });
+
+        botonRegistrar.disabled = !medioValido;
+
+        if (!medioValido) {
+            numeroCuenta.value = "";
+        }
+    }
+
+    function deshabilitarFormulario() {
+        formulario.querySelectorAll("input, select, button").forEach(elemento => {
+            elemento.disabled = true;
+        });
+    }
+
 });

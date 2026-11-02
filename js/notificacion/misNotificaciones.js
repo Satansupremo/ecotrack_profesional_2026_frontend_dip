@@ -70,8 +70,6 @@ async function cargarNotificaciones() {
         await actualizarContadorNotificaciones();
 
     } catch (error) {
-        console.error("Error al cargar notificaciones:", error);
-
         lista.innerHTML = `
             <div class="text-center py-5">
                 <i class="bi bi-exclamation-circle text-danger fs-1"></i>
@@ -143,7 +141,7 @@ function renderizarNotificaciones() {
                 : "text-dark fw-semibold"}
         `;
 
-        descripcion.textContent = notificacion.descripcion;
+        descripcion.innerHTML = notificacion.descripcion;
 
         descripcion.style.overflow = "hidden";
         descripcion.style.whiteSpace = "nowrap";
@@ -204,7 +202,6 @@ async function verNotificacion(idNotificacion) {
             await actualizarContadorNotificaciones();
 
         } catch (error) {
-            console.error("Error al marcar notificación:", error);
             alert("No se pudo marcar la notificación como leída.");
             return;
         }
@@ -212,7 +209,7 @@ async function verNotificacion(idNotificacion) {
 
     document.getElementById(
         "descripcion-notificacion"
-    ).textContent = notificacion.descripcion;
+    ).innerHTML = notificacion.descripcion;
 
     const modal = bootstrap.Modal.getOrCreateInstance(
         document.getElementById("modal-notificacion")
@@ -333,6 +330,5 @@ async function actualizarContadorNotificaciones() {
         contador.classList.toggle("d-none", cantidad <= 0);
 
     } catch (error) {
-        console.error("Error al actualizar contador:", error);
     }
 }

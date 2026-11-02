@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 3000);
 
         } catch (error) {
-            console.error("Error al registrar la cuenta:", error);
-
             mostrarMensaje(
                 "No se pudo obtener una respuesta del servidor.",
                 "danger"

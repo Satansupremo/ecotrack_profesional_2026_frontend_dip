@@ -53,8 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         } catch (error) {
-            console.error("Error de conexión:", error);
-
             mostrarMensaje(
                 "No se pudo obtener una respuesta del servidor.",
                 "danger"
