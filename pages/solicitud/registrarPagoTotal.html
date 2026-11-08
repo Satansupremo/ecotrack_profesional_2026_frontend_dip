@@ -52,11 +52,44 @@
                                 <p class="mb-0" id="codigo-solicitud">Cargando...</p>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">Monto asignado</label>
-                                <h3 class="text-primary fw-bold mb-0" id="monto-asignado">
-                                    Cargando...
-                                </h3>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="bg-info-subtle border border-info-subtle rounded-3 p-3 h-100">
+                                        <label class="form-label fw-semibold text-info-emphasis mb-2">
+                                            Costo total del servicio
+                                        </label>
+                                        <p class="fs-5 fw-semibold text-info-emphasis mb-2" id="monto-total-asignado">
+                                            Cargando...
+                                        </p>
+                                        <p class="small text-info-emphasis mb-0">
+                                            Es el importe total asignado para cubrir el servicio completo.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-success-subtle border border-success-subtle rounded-3 p-3 h-100">
+                                        <label class="form-label fw-semibold text-success-emphasis mb-2">
+                                            Pago inicial realizado
+                                        </label>
+                                        <p class="fs-5 fw-semibold text-success-emphasis mb-2" id="pago-inicial">
+                                            Cargando...
+                                        </p>
+                                        <p class="small text-success-emphasis mb-0">
+                                            Es el importe que abonaste al inicio de la solicitud.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="bg-primary-subtle border border-primary-subtle rounded-3 p-4">
+                                        <label class="form-label fw-bold text-primary-emphasis mb-2">
+                                            <i class="bi bi-cash-stack me-2"></i>
+                                            MONTO A PAGAR
+                                        </label>
+                                        <p class="fs-2 fw-bold text-primary-emphasis mb-0" id="monto-a-pagar">
+                                            Cargando...
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mb-4">
@@ -123,11 +156,11 @@
 
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/pages/solicitud/gestionarMisSolicitudes.html"
-                                        class="btn btn-outline-secondary">
+                                        class="btn btn-outline-secondary btn-accion-cancelar">
                                         Cancelar
                                     </a>
 
-                                    <button type="submit" id="boton-registrar" class="btn btn-primary">
+                                    <button type="submit" id="boton-registrar" class="btn btn-primary btn-accion-registrar">
                                         <i class="bi bi-check-circle me-1"></i>
                                         Registrar pago
                                     </button>

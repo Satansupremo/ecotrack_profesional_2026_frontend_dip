@@ -82,6 +82,8 @@ async function cargarNotificaciones() {
         document.getElementById(
             "paginacion-notificaciones"
         ).innerHTML = "";
+    } finally {
+        ocultarCargaCambioPagina();
     }
 }
 
@@ -106,16 +108,18 @@ function renderizarNotificaciones() {
     notificacionesActuales.forEach(notificacion => {
 
         const boton = document.createElement("button");
+        const esBuenaNoticia = !notificacion.estado
+            && (notificacion.descripcion?.includes("¡Buenas noticias!") ?? false);
 
         boton.type = "button";
         boton.className = `
             notificacion-item
             w-100
             text-start
-            border-0
-            border-bottom
             p-3
-            ${notificacion.estado ? "bg-light" : "bg-white"}
+            ${esBuenaNoticia
+                ? "bg-warning-subtle border border-warning rounded-3 my-2"
+                : `border-0 border-bottom ${notificacion.estado ? "bg-light" : "bg-white"}`}
         `;
 
         const fila = document.createElement("div");
@@ -124,9 +128,11 @@ function renderizarNotificaciones() {
         const icono = document.createElement("i");
         icono.className = `
             bi
-            ${notificacion.estado
-                ? "bi-envelope-open text-secondary"
-                : "bi-envelope-fill text-success"}
+            ${esBuenaNoticia
+                ? "bi-stars texto-dorado"
+                : notificacion.estado
+                    ? "bi-envelope-open text-danger"
+                    : "bi-envelope-fill text-danger"}
             fs-4
         `;
 
@@ -136,12 +142,14 @@ function renderizarNotificaciones() {
         const descripcion = document.createElement("p");
         descripcion.className = `
             mb-0
-            ${notificacion.estado
-                ? "text-secondary fw-normal"
-                : "text-dark fw-semibold"}
+            ${esBuenaNoticia
+                ? "text-warning-emphasis fw-bold"
+                : notificacion.estado
+                    ? "text-secondary fw-normal"
+                    : "text-dark fw-semibold"}
         `;
 
-        descripcion.innerHTML = notificacion.descripcion;
+        descripcion.textContent = notificacion.descripcion;
 
         descripcion.style.overflow = "hidden";
         descripcion.style.whiteSpace = "nowrap";
@@ -151,6 +159,13 @@ function renderizarNotificaciones() {
 
         fila.appendChild(icono);
         fila.appendChild(contenido);
+
+        if (esBuenaNoticia) {
+            const badge = document.createElement("span");
+            badge.className = "badge text-bg-warning";
+            badge.textContent = "Buena noticia";
+            fila.appendChild(badge);
+        }
 
         if (!notificacion.estado) {
             const badge = document.createElement("span");
@@ -209,7 +224,7 @@ async function verNotificacion(idNotificacion) {
 
     document.getElementById(
         "descripcion-notificacion"
-    ).innerHTML = notificacion.descripcion;
+    ).textContent = notificacion.descripcion;
 
     const modal = bootstrap.Modal.getOrCreateInstance(
         document.getElementById("modal-notificacion")
@@ -223,36 +238,26 @@ function renderizarPaginacion() {
     const paginacion = document.getElementById(
         "paginacion-notificaciones"
     );
+    const informacion = document.getElementById(
+        "informacion-paginacion-notificaciones"
+    );
 
     paginacion.innerHTML = "";
-
-    if (totalPaginas <= 1) {
-        return;
-    }
+    informacion.textContent =
+        `Página ${totalPaginas === 0 ? 0 : paginaActual + 1} de ${totalPaginas}`;
 
     agregarBotonPaginacion(
         paginacion,
         "Anterior",
         paginaActual - 1,
-        paginaActual === 0
+        totalPaginas <= 1 || paginaActual === 0
     );
-
-    for (let i = 0; i < totalPaginas; i++) {
-
-        agregarBotonPaginacion(
-            paginacion,
-            i + 1,
-            i,
-            false,
-            paginaActual === i
-        );
-    }
 
     agregarBotonPaginacion(
         paginacion,
         "Siguiente",
         paginaActual + 1,
-        paginaActual >= totalPaginas - 1
+        totalPaginas <= 1 || paginaActual >= totalPaginas - 1
     );
 }
 
@@ -260,8 +265,7 @@ function agregarBotonPaginacion(
     contenedor,
     texto,
     pagina,
-    deshabilitado,
-    activo = false
+    deshabilitado
 ) {
 
     const elemento = document.createElement("li");
@@ -269,7 +273,6 @@ function agregarBotonPaginacion(
     elemento.className = `
         page-item
         ${deshabilitado ? "disabled" : ""}
-        ${activo ? "active" : ""}
     `;
 
     const boton = document.createElement("button");
@@ -300,7 +303,45 @@ async function cambiarPagina(nuevaPagina) {
 
     sessionStorage.setItem(CLAVE_PAGINA, paginaActual);
 
+    mostrarCargaCambioPagina();
+    await new Promise(resolve => requestAnimationFrame(resolve));
     await cargarNotificaciones();
+}
+
+function mostrarCargaCambioPagina() {
+    if (document.getElementById("pantalla-carga")) {
+        return;
+    }
+
+    const pantalla = document.createElement("div");
+    pantalla.id = "pantalla-carga";
+
+    const indicador = document.createElement("div");
+    indicador.className = "spinner-border text-danger";
+    indicador.setAttribute("role", "status");
+
+    const textoAccesible = document.createElement("span");
+    textoAccesible.className = "visually-hidden";
+    textoAccesible.textContent = "Cargando...";
+    indicador.appendChild(textoAccesible);
+
+    const mensaje = document.createElement("p");
+    mensaje.className = "mt-3 text-secondary fw-semibold";
+    mensaje.textContent = "Cargando...";
+
+    pantalla.append(indicador, mensaje);
+    document.body.appendChild(pantalla);
+}
+
+function ocultarCargaCambioPagina() {
+    const pantalla = document.getElementById("pantalla-carga");
+
+    if (!pantalla) {
+        return;
+    }
+
+    pantalla.classList.add("oculto");
+    setTimeout(() => pantalla.remove(), 300);
 }
 
 async function actualizarContadorNotificaciones() {

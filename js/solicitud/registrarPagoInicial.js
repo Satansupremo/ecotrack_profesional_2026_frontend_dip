@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const idSolicitud = Number(parametros.get("id"));
 
     const codigoSolicitud = document.getElementById("codigo-solicitud");
-    const montoAsignado = document.getElementById("monto-asignado");
+    const montoAsignado = document.getElementById("monto-a-pagar");
     const razon = document.getElementById("razon");
 
     const formulario = document.getElementById("formulario-pago");
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             mostrarMensaje(validacion.message, "danger");
             const campo = document.getElementById(validacion.campo);
             if (campo) {
-                campo.focus();
+                campo.focus({ preventScroll: true });
             }
             return;
         }
@@ -124,7 +124,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 2500);
 
         } catch (error) {
-            return;
+            mostrarMensaje(
+                error.message || "No se pudo registrar el pago inicial.",
+                "danger"
+            );
         } finally {
             if (!registroExitoso) {
                 botonRegistrar.innerHTML = "Registrar pago";
@@ -252,6 +255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         `;
+        mensajeContainer.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function escaparHTML(valor) {

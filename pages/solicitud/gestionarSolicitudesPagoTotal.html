@@ -35,7 +35,7 @@
                     Gestión de pagos totales
                 </span>
 
-                <h1 class="h2 fw-bold mb-1">Solicitudes de pago total</h1>
+                <h1 class="h2 fw-bold mb-1">Solicitudes PT efectuado y confirmado</h1>
 
                 <p class="text-secondary mb-0">
                     Consulta los pagos totales efectuados y confirmados para gestionar su validación y programación de recojo.
@@ -58,7 +58,7 @@
                                 Total: <span id="total-solicitudes">0</span>
                             </span>
 
-                            <button class="btn btn-outline-danger btn-sm" id="actualizar-listado">
+                            <button class="btn btn-outline-danger btn-sm btn-accion-consultar" id="actualizar-listado">
                                 <i class="bi bi-arrow-clockwise me-1"></i>
                                 Actualizar
                             </button>
@@ -71,9 +71,9 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Título</th>
-                                    <th>Ubicación</th>
+                                    <th>Codigo</th>
+                                    <th>Titulo</th>
+                                    <th>Ubicacion</th>
                                     <th>Fecha de registro</th>
                                     <th>Estado</th>
                                     <th class="text-center">Acciones</th>
@@ -156,12 +156,12 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary"
+                    <button type="button" class="btn btn-outline-secondary btn-accion-cancelar"
                         data-bs-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <button type="button" class="btn btn-danger" id="confirmar-rechazo">
+                    <button type="button" class="btn btn-danger btn-accion-rechazar" id="confirmar-rechazo">
                         <i class="bi bi-x-circle me-1"></i>
                         Rechazar pago
                     </button>

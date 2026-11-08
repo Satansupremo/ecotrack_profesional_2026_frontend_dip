@@ -51,6 +51,134 @@
     box-shadow: 0 0 0 0.2rem rgba(255, 49, 49, 0.12);
 }
 
+/* Estados compartidos en tablas y detalles */
+.estado-badge {
+    background-color: var(--bs-secondary-bg-subtle);
+    color: var(--bs-secondary-text-emphasis);
+}
+
+.estado-badge[data-estado="PENDIENTE"],
+.estado-badge[data-estado$="_PENDIENTE"],
+.estado-badge[data-estado="POR_FINALIZAR"] {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+
+.estado-badge[data-estado="PAGO_INICIAL_EFECTUADO"],
+.estado-badge[data-estado="PAGO_TOTAL_EFECTUADO"],
+.estado-badge[data-estado="EN_VERIFICACION"],
+.estado-badge[data-estado="EJECUTANDO"] {
+    background-color: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+}
+
+.estado-badge[data-estado="PAGO_INICIAL_CONFIRMADO"],
+.estado-badge[data-estado="PAGO_TOTAL_CONFIRMADO"],
+.estado-badge[data-estado="CONFIRMADO"],
+.estado-badge[data-estado="FINALIZADO"] {
+    background-color: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+}
+
+.estado-badge[data-estado="PROGRAMADO"],
+.estado-badge[data-estado="ASIGNADO"] {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+}
+
+.estado-badge[data-estado="CANCELADO"],
+.estado-badge[data-estado="RECHAZADO"] {
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+
+/* Colores compartidos para acciones */
+.btn-accion-consultar {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #0b5ed7;
+    --bs-btn-hover-border-color: #0a58ca;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #0a58ca;
+    --bs-btn-active-border-color: #0a53be;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--bs-primary);
+    --bs-btn-disabled-border-color: var(--bs-primary);
+}
+
+.btn-accion-registrar,
+.btn-accion-confirmar {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--bs-success);
+    --bs-btn-border-color: var(--bs-success);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #157347;
+    --bs-btn-hover-border-color: #146c43;
+    --bs-btn-focus-shadow-rgb: 60, 153, 110;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #146c43;
+    --bs-btn-active-border-color: #13653f;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--bs-success);
+    --bs-btn-disabled-border-color: var(--bs-success);
+}
+
+.btn-accion-editar {
+    --bs-btn-color: #212529;
+    --bs-btn-bg: var(--bs-warning);
+    --bs-btn-border-color: var(--bs-warning);
+    --bs-btn-hover-color: #212529;
+    --bs-btn-hover-bg: #ffca2c;
+    --bs-btn-hover-border-color: #ffc720;
+    --bs-btn-focus-shadow-rgb: 217, 164, 6;
+    --bs-btn-active-color: #212529;
+    --bs-btn-active-bg: #ffcd39;
+    --bs-btn-active-border-color: #ffc720;
+    --bs-btn-disabled-color: #212529;
+    --bs-btn-disabled-bg: var(--bs-warning);
+    --bs-btn-disabled-border-color: var(--bs-warning);
+}
+
+.btn-accion-cancelar {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--bs-secondary);
+    --bs-btn-border-color: var(--bs-secondary);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #5c636a;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-focus-shadow-rgb: 130, 138, 145;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #51585e;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--bs-secondary);
+    --bs-btn-disabled-border-color: var(--bs-secondary);
+}
+
+.btn-accion-rechazar,
+.btn-accion-eliminar {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--bs-danger);
+    --bs-btn-border-color: var(--bs-danger);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #bb2d3b;
+    --bs-btn-hover-border-color: #b02a37;
+    --bs-btn-focus-shadow-rgb: 225, 83, 97;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #b02a37;
+    --bs-btn-active-border-color: #a52834;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--bs-danger);
+    --bs-btn-disabled-border-color: var(--bs-danger);
+}
+
+table thead th {
+    text-transform: uppercase;
+}
+
 /* Placeholder */
 .form-control::placeholder {
     color: #adb5bd;
@@ -88,4 +216,94 @@ form hr {
     color: #FFB800 !important;
     font-weight: 800 !important;
     text-shadow: 0 0 1px rgba(255, 184, 0, 0.7);
+}
+
+/* Responsive site navigation */
+.ecotrack-navbar .navbar-brand {
+    min-width: 0;
+    max-width: calc(100% - 3.5rem);
+}
+
+.ecotrack-navbar-logo {
+    flex: 0 0 auto;
+    font-size: 2.5rem;
+}
+
+.ecotrack-navbar-brand-text {
+    min-width: 0;
+}
+
+.ecotrack-navbar-brand-name {
+    font-size: 1.65rem;
+}
+
+.ecotrack-navbar-tagline {
+    max-width: 34ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+    .ecotrack-navbar .navbar-collapse {
+        flex-basis: 100%;
+        padding-top: 0.75rem;
+    }
+
+    .ecotrack-navbar .navbar-nav {
+        align-items: stretch;
+        gap: 0;
+        width: 100%;
+    }
+
+    .ecotrack-navbar .navbar-nav > .nav-item {
+        border-top: 1px solid var(--bs-border-color);
+    }
+
+    .ecotrack-navbar .navbar-nav > .nav-item > .nav-link {
+        justify-content: flex-start;
+        padding: 0.75rem 0.25rem;
+        font-size: 1rem !important;
+    }
+
+    .ecotrack-navbar #user-menu > .nav-link {
+        max-width: 100%;
+    }
+
+    .ecotrack-navbar #header-username {
+        max-width: calc(100vw - 8rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ecotrack-navbar .dropdown-menu {
+        position: static !important;
+        width: 100%;
+        max-height: min(60vh, 30rem);
+        margin-top: 0.25rem !important;
+        overflow-y: auto;
+    }
+
+    .ecotrack-navbar .dropdown-item {
+        white-space: normal;
+    }
+
+    .ecotrack-navbar .dropdown-item > span:first-child {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 399.98px) {
+    .ecotrack-navbar-logo {
+        font-size: 2rem;
+    }
+
+    .ecotrack-navbar-brand-name {
+        font-size: 1.4rem;
+    }
+
+    .ecotrack-navbar-tagline {
+        display: none;
+    }
 }

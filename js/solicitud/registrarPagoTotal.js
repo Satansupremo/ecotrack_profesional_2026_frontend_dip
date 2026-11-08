@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const API_ASIGNACION = "http://localhost:8080/api/asignacion-total";
+    const API_ASIGNACION_INICIAL = "http://localhost:8080/api/asignacion-inicial";
     const API_PAGO_TOTAL = "http://localhost:8080/api/pago-total";
     const API_MEDIO_PAGO = "http://localhost:8080/api/medio-pago";
 
@@ -13,7 +14,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const idSolicitud = Number(parametros.get("id"));
 
     const codigoSolicitud = document.getElementById("codigo-solicitud");
-    const montoAsignado = document.getElementById("monto-asignado");
+    const montoAsignado = document.getElementById("monto-a-pagar");
+    const montoTotalAsignado = document.getElementById("monto-total-asignado");
+    const pagoInicial = document.getElementById("pago-inicial");
     const razon = document.getElementById("razon");
 
     const formulario = document.getElementById("formulario-pago");
@@ -72,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             mostrarMensaje(validacion.message, "danger");
             const campo = document.getElementById(validacion.campo);
             if (campo) {
-                campo.focus();
+                campo.focus({ preventScroll: true });
             }
             return;
         }
@@ -124,7 +127,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 2500);
 
         } catch (error) {
-            return;
+            mostrarMensaje(
+                error.message || "No se pudo registrar el pago total.",
+                "danger"
+            );
         } finally {
             if (!registroExitoso) {
                 botonRegistrar.innerHTML = "Registrar pago";
@@ -135,13 +141,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function cargarInformacion() {
         try {
-            const [respuestaAsignacion, respuestaMedios] = await Promise.all([
+            const [respuestaAsignacion, respuestaAsignacionInicial, respuestaMedios] = await Promise.all([
                 fetchAutenticado(`${API_ASIGNACION}/buscar/${idSolicitud}`),
+                fetchAutenticado(`${API_ASIGNACION_INICIAL}/buscar/${idSolicitud}`),
                 fetchAutenticado(`${API_MEDIO_PAGO}/listar`)
             ]);
 
-            const [asignacion, medios] = await Promise.all([
+            const [asignacion, asignacionInicial, medios] = await Promise.all([
                 leerRespuesta(respuestaAsignacion),
+                leerRespuesta(respuestaAsignacionInicial),
                 leerRespuesta(respuestaMedios)
             ]);
 
@@ -151,22 +159,51 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
+            if (!respuestaAsignacionInicial.ok || !asignacionInicial.success) {
+                mostrarMensaje(asignacionInicial.message, "danger");
+                deshabilitarFormulario();
+                return;
+            }
+
             if (!respuestaMedios.ok || !medios.success) {
                 mostrarMensaje(medios.message, "danger");
                 deshabilitarFormulario();
                 return;
             }
-
+            const montoTotal = Number(asignacion.data.montoAsignadoTotal);
             const montoPendiente = Number(asignacion.data.montoPorCobrar);
+            const montoInicial = Number(asignacionInicial.data.montoAsignadoInicial);
 
-            montoAsignado.textContent = `S/ ${montoPendiente.toFixed(2)}`;
+            if (
+                !Number.isFinite(montoTotal) ||
+                !Number.isFinite(montoPendiente) ||
+                !Number.isFinite(montoInicial) ||
+                montoTotal < 0 ||
+                montoPendiente < 0 ||
+                montoInicial < 0 ||
+                montoPendiente > montoTotal
+            ) {
+                throw new Error("La asignación total contiene montos inválidos.");
+            }
+
+            montoTotalAsignado.textContent = formatearMonto(montoTotal);
+            pagoInicial.textContent = formatearMonto(montoInicial);
+            montoAsignado.textContent = formatearMonto(montoPendiente);
             razon.value = asignacion.data.razon || "";
 
             cargarMediosPago(medios.data || []);
 
         } catch (error) {
+            mostrarMensaje(
+                error.message || "No se pudo cargar la información del pago total.",
+                "danger"
+            );
             deshabilitarFormulario();
         }
+    }
+
+    function formatearMonto(valor) {
+        return `S/ ${valor.toFixed(2)}`;
     }
 
     function cargarMediosPago(medios) {
@@ -252,6 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         `;
+        mensajeContainer.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function escaparHTML(valor) {

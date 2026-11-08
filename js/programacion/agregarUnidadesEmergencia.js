@@ -20,9 +20,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnActualizar = document.getElementById("btn-actualizar");
     const btnConfirmar = document.getElementById("btn-confirmar");
     const btnCancelar = document.getElementById("btn-cancelar");
+    const btnAceptarLiberacion = document.getElementById("btn-aceptar-liberacion");
+    const btnAceptarConfirmacion = document.getElementById("btn-aceptar-confirmacion");
+    const modalLiberacion = bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("modal-confirmar-liberacion")
+    );
+    const modalConfirmacion = bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("modal-confirmar-unidades")
+    );
 
     let reservasActuales = [];
     let temporizador = null;
+    let idReservaPendienteLiberacion = null;
 
     if (!idProgramacion || !/^\d+$/.test(idProgramacion)) {
 
@@ -45,9 +54,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         `#${idProgramacion}`;
 
     btnReservar.addEventListener("click", reservarUnidad);
-    btnActualizar.addEventListener("click", cargarReservas);
-    btnConfirmar.addEventListener("click", confirmarUnidades);
+    btnActualizar.addEventListener("click", () => {
+        mensajeContainer.innerHTML = "";
+        cargarReservas();
+    });
+    btnConfirmar.addEventListener("click", () => {
+        if (reservasActuales.length === 0) {
+            mostrarMensaje("No tienes reservas para confirmar.", "warning");
+            return;
+        }
+
+        modalConfirmacion.show();
+    });
     btnCancelar.addEventListener("click", cancelarReservas);
+    btnAceptarLiberacion.addEventListener("click", async () => {
+        const idReserva = idReservaPendienteLiberacion;
+        idReservaPendienteLiberacion = null;
+        modalLiberacion.hide();
+
+        if (idReserva) {
+            await liberarReserva(idReserva);
+        }
+    });
+    btnAceptarConfirmacion.addEventListener("click", async () => {
+        modalConfirmacion.hide();
+        await confirmarUnidades();
+    });
+    document.getElementById("modal-confirmar-liberacion")
+        .addEventListener("hidden.bs.modal", () => {
+            idReservaPendienteLiberacion = null;
+        });
 
     tabla.addEventListener("click", async event => {
 
@@ -63,7 +99,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        await liberarReserva(idReserva);
+        idReservaPendienteLiberacion = idReserva;
+        modalLiberacion.show();
     });
 
     await cargarReservas();
@@ -79,6 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
 
+            mensajeContainer.innerHTML = "";
             bloquearBotones(true);
 
             const respuesta = await fetchAutenticado(
@@ -101,12 +139,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             tipoVehiculo.value = "";
 
-            mostrarMensaje(
-                resultado.message || "La unidad fue reservada correctamente.",
-                "success"
-            );
-
-            await cargarReservas();
+            if (await cargarReservas()) {
+                mostrarMensaje(
+                    resultado.message || "La unidad fue reservada correctamente.",
+                    "success"
+                );
+            }
 
         } catch (error) {
 
@@ -122,9 +160,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function cargarReservas() {
 
         try {
-
-            mensajeContainer.innerHTML = "";
-
             btnActualizar.disabled = true;
 
             const respuesta = await fetchAutenticado(
@@ -145,6 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             reservasActuales = resultado.data || [];
 
             renderizarReservas();
+            return true;
 
         } catch (error) {
 
@@ -161,6 +197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             actualizarBotones();
 
             mostrarMensaje(error.message, "danger");
+            return false;
 
         } finally {
 
@@ -250,7 +287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <td class="text-center">
 
                     <button type="button"
-                        class="btn btn-outline-danger btn-sm"
+                        class="btn btn-danger btn-sm btn-accion-eliminar"
                         data-accion="liberar"
                         data-id="${escaparHTML(reserva.idReserva)}">
 
@@ -319,12 +356,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function liberarReserva(idReserva) {
 
-        if (!confirm("¿Deseas liberar esta reserva de emergencia?")) {
-            return;
-        }
-
         try {
 
+            mensajeContainer.innerHTML = "";
             bloquearBotones(true);
 
             const respuesta = await fetchAutenticado(
@@ -345,12 +379,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 );
             }
 
-            mostrarMensaje(
-                resultado.message || "La reserva fue liberada correctamente.",
-                "success"
-            );
-
-            await cargarReservas();
+            if (await cargarReservas()) {
+                mostrarMensaje(
+                    resultado.message || "La reserva fue liberada correctamente.",
+                    "success"
+                );
+            }
 
         } catch (error) {
 
@@ -375,14 +409,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        if (!confirm(
-            "¿Deseas confirmar tus unidades reservadas e incorporarlas a la programación?"
-        )) {
-            return;
-        }
-
         try {
 
+            mensajeContainer.innerHTML = "";
             bloquearBotones(true);
 
             const respuesta = await fetchAutenticado(
@@ -403,12 +432,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 );
             }
 
-            mostrarMensaje(
-                resultado.message || "Las unidades fueron confirmadas correctamente.",
-                "success"
-            );
-
-            await cargarReservas();
+            if (await cargarReservas()) {
+                mostrarMensaje(
+                    resultado.message || "Las unidades fueron confirmadas correctamente.",
+                    "success"
+                );
+            }
 
         } catch (error) {
 
@@ -548,9 +577,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
         `;
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+        mensajeContainer.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
         });
     }
 

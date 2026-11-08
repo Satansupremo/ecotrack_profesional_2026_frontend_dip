@@ -209,15 +209,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             let acciones = "";
 
-            let colorEstado = "text-bg-secondary";
-
             if (solicitud.estado === "PAGO_INICIAL_CONFIRMADO") {
-
-                colorEstado = "text-bg-success";
 
                 acciones = `
                     <button type="button"
-                        class="btn btn-success btn-sm"
+                        class="btn btn-success btn-sm btn-accion-confirmar"
                         data-accion="tomar"
                         data-id="${solicitud.idSolicitud}">
                         <i class="bi bi-hand-index-thumb me-1"></i>
@@ -227,19 +223,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             } else if (solicitud.estado === "EN_VERIFICACION") {
 
-                colorEstado = "text-bg-warning";
-
                 if (solicitud.asignadaAlCoordinadorActual) {
 
                     acciones = `
                         <a href="/pages/solicitud/asignarPagoTotal.html?id=${solicitud.idSolicitud}"
-                            class="btn btn-success btn-sm">
+                            class="btn btn-success btn-sm btn-accion-registrar">
                             <i class="bi bi-cash-coin me-1"></i>
                             Asignar pago total
                         </a>
 
                         <button type="button"
-                            class="btn btn-outline-danger btn-sm"
+                            class="btn btn-danger btn-sm btn-accion-cancelar"
                             data-accion="cancelar"
                             data-id="${solicitud.idSolicitud}">
                             <i class="bi bi-x-circle me-1"></i>
@@ -263,7 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             acciones += `
                 <a href="/pages/solicitud/verSolicitudPIConfirmada.html?id=${solicitud.idSolicitud}"
-                    class="btn btn-outline-primary btn-sm">
+                    class="btn btn-primary btn-sm btn-accion-consultar">
                     <i class="bi bi-eye me-1"></i>
                     Ver solicitud
                 </a>
@@ -287,7 +281,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </td>
 
                 <td>
-                    <span class="badge rounded-pill ${colorEstado}">
+                    <span class="badge rounded-pill estado-badge"
+                        data-estado="${escaparHTML(solicitud.estado)}">
                         ${escaparHTML(solicitud.estado)}
                     </span>
                 </td>

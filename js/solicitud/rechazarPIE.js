@@ -63,8 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("monto-pago").textContent =
             formatearMonto(pago.montoPago);
 
-        document.getElementById("estado-pago").textContent =
-            pago.estadoPago || "-";
+        const estadoPago = document.getElementById("estado-pago");
+        estadoPago.textContent = pago.estadoPago || "-";
+        estadoPago.dataset.estado = pago.estadoPago || "";
 
         document.getElementById("medio-pago").textContent =
             pago.nombreMedioPago || "-";

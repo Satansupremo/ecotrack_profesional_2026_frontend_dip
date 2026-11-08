@@ -140,19 +140,20 @@ function renderizarSolicitudes(solicitudes) {
             <td>${escaparHTML(solicitud.ubicacion)}</td>
             <td>${fecha}</td>
             <td>
-                <span class="badge rounded-pill text-bg-warning">
+                <span class="badge rounded-pill estado-badge"
+                    data-estado="${escaparHTML(solicitud.estado)}">
                     ${escaparHTML(solicitud.estado)}
                 </span>
             </td>
             <td class="text-center">
                 <a href="/pages/solicitud/verSolicitudPendiente.html?id=${solicitud.idSolicitud}"
-                   class="btn btn-sm btn-outline-danger me-1">
+                   class="btn btn-sm btn-accion-consultar me-1">
                     <i class="bi bi-eye me-1"></i>
                     Ver
                 </a>
 
                 <a href="/pages/solicitud/asignarPagoInicial.html?id=${solicitud.idSolicitud}"
-                   class="btn btn-sm btn-outline-success">
+                   class="btn btn-sm btn-accion-registrar">
                     <i class="bi bi-cash-coin me-1"></i>
                     Asignar pago inicial
                 </a>

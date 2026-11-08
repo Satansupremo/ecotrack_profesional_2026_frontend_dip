@@ -109,13 +109,24 @@
 
                     <div id="estado-control-ejecucion" class="mb-3"></div>
 
-                    <div id="acciones-ejecucion" class="d-flex justify-content-end mb-4">
+                    <div id="acciones-ejecucion" class="mb-4">
+                        <div class="bg-danger-subtle border border-danger-subtle rounded-4 p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                            <div>
+                                <span class="badge text-bg-danger mb-2">Acción importante</span>
+                                <h3 class="h5 fw-bold text-danger-emphasis mb-1">
+                                    ¿Todo listo para cerrar la programación?
+                                </h3>
+                                <p class="text-danger-emphasis mb-0">
+                                    Solicita la finalización cuando todas las salidas hayan sido recibidas.
+                                </p>
+                            </div>
 
-                        <button type="button" class="btn btn-danger" id="finalizar-programacion">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Finalizar programación
-                        </button>
-
+                            <button type="button" class="btn btn-danger btn-lg fw-bold shadow-sm px-4 flex-shrink-0"
+                                id="finalizar-programacion">
+                                <i class="bi bi-flag-fill me-2"></i>
+                                Solicitar finalización
+                            </button>
+                        </div>
                     </div>
 
                     <h3 class="h6 fw-bold mb-3">
@@ -128,9 +139,9 @@
 
                             <thead class="table-light">
                                 <tr>
-                                    <th>Código</th>
+                                    <th>Codigo</th>
                                     <th>Fecha de salida</th>
-                                    <th>Vehículo</th>
+                                    <th>Vehiculo</th>
                                     <th>Tipo</th>
                                     <th>Transportista</th>
                                     <th>Estado</th>
@@ -183,8 +194,8 @@
 
                             <thead class="table-light">
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Tipo de vehículo</th>
+                                    <th>Codigo</th>
+                                    <th>Tipo de vehiculo</th>
                                     <th>Placa</th>
                                     <th>Marca</th>
                                     <th>Modelo</th>
@@ -211,12 +222,12 @@
 
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
 
-                        <button type="button" class="btn btn-outline-secondary" id="volver">
+                        <button type="button" class="btn btn-outline-secondary btn-accion-cancelar" id="volver">
                             <i class="bi bi-arrow-left me-1"></i>
                             Volver
                         </button>
 
-                        <button type="button" class="btn btn-success" id="generar-reporte" disabled>
+                        <button type="button" class="btn btn-success btn-accion-consultar" id="generar-reporte" disabled>
                             <i class="bi bi-file-earmark-pdf me-1"></i>
                             Generar reporte
                         </button>
@@ -228,6 +239,32 @@
 
         </section>
     </main>
+
+    <div class="modal fade" id="modal-confirmar-salida" tabindex="-1"
+        aria-labelledby="titulo-modal-confirmar-salida" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="titulo-modal-confirmar-salida">
+                        Registrar salida
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Confirmas el registro de salida para este volquete?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        No, volver
+                    </button>
+                    <button type="button" class="btn btn-danger rounded-pill px-3" id="btn-confirmar-salida">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>
+                        Sí, registrar salida
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="site-footer"></div>
 

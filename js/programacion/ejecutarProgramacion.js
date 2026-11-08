@@ -12,12 +12,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const mensajeContainer = document.getElementById("mensaje-container");
     const informacionProgramacion = document.getElementById("informacion-programacion");
+    const recomendacionesUnidades = document.getElementById("recomendaciones-unidades");
     const contenedorTiposVehiculo = document.getElementById("contenedor-tipos-vehiculo");
     const tablaUnidades = document.getElementById("tabla-unidades");
     const totalUnidades = document.getElementById("total-unidades");
 
     const botonCancelar = document.getElementById("cancelar");
     const botonEjecutar = document.getElementById("ejecutar-programacion");
+    const botonAceptarEjecucion = document.getElementById("btn-aceptar-ejecucion");
+    const modalConfirmacionEjecucion = new bootstrap.Modal(
+        document.getElementById("modal-confirmacion-ejecucion")
+    );
+    const botonAceptarRetiro = document.getElementById("btn-aceptar-retiro");
+    const elementoModalConfirmacionRetiro = document.getElementById("modal-confirmacion-retiro");
+    const modalConfirmacionRetiro = new bootstrap.Modal(elementoModalConfirmacionRetiro);
 
     const tiposVehiculo = [
         { valor: "VOLQUETE", nombre: "Volquete", icono: "bi-truck" },
@@ -30,6 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let programacion = null;
     let unidades = [];
     let procesando = false;
+    let idDetallePendienteRetiro = null;
 
     if (!idProgramacion || !/^\d+$/.test(idProgramacion) || Number(idProgramacion) <= 0) {
 
@@ -42,6 +51,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
 
         contenedorTiposVehiculo.innerHTML = "";
+        recomendacionesUnidades.innerHTML = `
+            <div class="col-12 text-secondary">
+                No hay recomendaciones disponibles.
+            </div>
+        `;
         tablaUnidades.innerHTML = `
             <tr>
                 <td colspan="7" class="text-center text-secondary py-4">
@@ -68,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await agregarUnidad(boton.dataset.tipo);
     });
 
-    tablaUnidades.addEventListener("click", async event => {
+    tablaUnidades.addEventListener("click", event => {
 
         const boton = event.target.closest("[data-eliminar]");
 
@@ -76,25 +90,42 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        const idDetalle = boton.dataset.eliminar;
+        idDetallePendienteRetiro = boton.dataset.eliminar;
+        modalConfirmacionRetiro.show();
+    });
 
-        if (!confirm("¿Estás seguro de retirar esta unidad de la programación?")) {
+    botonAceptarRetiro.addEventListener("click", async () => {
+
+        if (procesando || !idDetallePendienteRetiro) {
             return;
         }
 
+        const idDetalle = idDetallePendienteRetiro;
+        idDetallePendienteRetiro = null;
+        modalConfirmacionRetiro.hide();
         await eliminarUnidad(idDetalle);
     });
 
-    botonEjecutar.addEventListener("click", async () => {
+    elementoModalConfirmacionRetiro.addEventListener("hidden.bs.modal", () => {
+        idDetallePendienteRetiro = null;
+    });
+
+    botonEjecutar.addEventListener("click", () => {
 
         if (procesando || unidades.length === 0) {
             return;
         }
 
-        if (!confirm("¿Deseas ejecutar esta programación? Esta acción cambiará su estado.")) {
+        modalConfirmacionEjecucion.show();
+    });
+
+    botonAceptarEjecucion.addEventListener("click", async () => {
+
+        if (procesando || unidades.length === 0) {
             return;
         }
 
+        modalConfirmacionEjecucion.hide();
         await ejecutarProgramacion();
     });
 
@@ -121,6 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             renderizarInformacionProgramacion();
+            renderizarRecomendacionesUnidades();
 
             await Promise.all([
                 cargarUnidades(),
@@ -136,6 +168,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             `;
 
             contenedorTiposVehiculo.innerHTML = "";
+            recomendacionesUnidades.innerHTML = `
+                <div class="col-12 text-danger">
+                    No se pudieron cargar las recomendaciones.
+                </div>
+            `;
 
             tablaUnidades.innerHTML = `
                 <tr>
@@ -173,7 +210,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 <div class="col-md-3">
                     <span class="text-secondary small d-block">Estado</span>
-                    <span class="badge text-bg-primary">
+                    <span class="badge estado-badge"
+                        data-estado="${escaparHTML(programacion.estado)}">
                         ${escaparHTML(programacion.estado)}
                     </span>
                 </div>
@@ -202,16 +240,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <p class="mb-0">${escaparHTML(programacion.descripcionSolicitud)}</p>
                 </div>
 
-                <div class="col-md-6">
-                    <span class="text-secondary small d-block">Cantidad de unidades recomendadas</span>
-                    <span class="fw-semibold">${programacion.cantidadUnidades ?? 0}</span>
-                </div>
-
-                <div class="col-md-6">
-                    <span class="text-secondary small d-block">Razón de la cantidad recomendada</span>
-                    <span>${escaparHTML(programacion.razonCantidadUnidades || "-")}</span>
-                </div>
-
                 <div class="col-12">
                     <span class="text-secondary small d-block">Equipo de seguridad</span>
                     <p class="mb-0">${escaparHTML(programacion.equipoSeguridad || "-")}</p>
@@ -222,6 +250,32 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <p class="mb-0">${escaparHTML(programacion.otrasRecomendaciones || "-")}</p>
                 </div>
 
+            </div>
+        `;
+    }
+
+    function renderizarRecomendacionesUnidades() {
+
+        recomendacionesUnidades.innerHTML = `
+            <div class="col-md-4">
+                <div class="bg-danger-subtle rounded-3 p-3 h-100 d-flex flex-column justify-content-center">
+                    <span class="text-danger-emphasis fw-semibold small d-block">
+                        Cantidad recomendada
+                    </span>
+                    <span class="display-5 fw-bold text-danger-emphasis lh-1 mt-2">
+                        ${escaparHTML(programacion.cantidadUnidades ?? 0)}
+                        <span class="fs-6 fw-semibold">unidades</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="bg-light rounded-3 p-3 p-md-4 h-100">
+                    <span class="text-secondary fw-semibold small d-block mb-2">
+                        Razón de la cantidad recomendada
+                    </span>
+                    <p class="mb-0 fs-6">${escaparHTML(programacion.razonCantidadUnidades || "-")}</p>
+                </div>
             </div>
         `;
     }
@@ -265,17 +319,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         contenedorTiposVehiculo.innerHTML = tiposVehiculo.map(tipo => `
             <div class="col-12 col-sm-6 col-lg-4">
 
-                <div class="card h-100 border rounded-3">
-                    <div class="card-body text-center">
+                <div class="card h-100 border-0 shadow-sm rounded-4">
+                    <div class="card-body text-center p-4">
 
-                        <i class="bi ${tipo.icono} display-5 text-danger"></i>
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle"
+                            style="width: 4rem; height: 4rem;">
+                            <i class="bi ${tipo.icono} fs-3"></i>
+                        </div>
 
                         <h3 class="h6 fw-bold mt-3 mb-3">
                             ${tipo.nombre}
                         </h3>
 
                         <button type="button"
-                            class="btn btn-outline-danger btn-sm w-100"
+                            class="btn btn-outline-danger btn-sm w-100 rounded-pill"
                             data-tipo="${tipo.valor}">
 
                             <i class="bi bi-plus-circle me-1"></i>
@@ -338,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                         <td class="text-center">
                             <button type="button"
-                                class="btn btn-outline-danger btn-sm"
+                                class="btn btn-outline-danger btn-sm rounded-pill"
                                 data-eliminar="${unidad.idDetalle}">
 
                                 <i class="bi bi-trash me-1"></i>

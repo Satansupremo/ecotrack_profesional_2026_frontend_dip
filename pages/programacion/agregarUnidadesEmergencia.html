@@ -47,8 +47,6 @@
 
             </div>
 
-            <div id="mensaje-container"></div>
-
             <!-- Información de la programación -->
 
             <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -68,7 +66,7 @@
                             </p>
                         </div>
 
-                        <span id="estado-programacion" class="badge text-bg-warning">
+                        <span id="estado-programacion" class="badge estado-badge" data-estado="EJECUTANDO">
                             EJECUTANDO
                         </span>
 
@@ -101,6 +99,8 @@
                 </div>
 
             </div>
+
+            <div id="mensaje-container"></div>
 
             <!-- Reservar unidad -->
 
@@ -144,7 +144,7 @@
 
                         <div class="col-md-6">
 
-                            <button type="button" class="btn btn-danger" id="btn-reservar">
+                            <button type="button" class="btn btn-danger btn-accion-registrar" id="btn-reservar">
 
                                 <i class="bi bi-bookmark-plus me-1"></i>
                                 Reservar unidad
@@ -194,7 +194,7 @@
                                 Reservas: <span id="total-reservas">0</span>
                             </span>
 
-                            <button type="button" class="btn btn-outline-danger btn-sm" id="btn-actualizar">
+                            <button type="button" class="btn btn-outline-danger btn-sm btn-accion-consultar" id="btn-actualizar">
 
                                 <i class="bi bi-arrow-clockwise me-1"></i>
                                 Actualizar
@@ -212,10 +212,10 @@
                             <thead class="table-light">
 
                                 <tr>
-                                    <th>Código</th>
+                                    <th>Codigo</th>
                                     <th>Transportista</th>
                                     <th>Celular</th>
-                                    <th>Vehículo</th>
+                                    <th>Vehiculo</th>
                                     <th>Placa</th>
                                     <th>Capacidad (lb)</th>
                                     <th>Expira</th>
@@ -241,14 +241,14 @@
 
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
 
-                        <button type="button" class="btn btn-outline-danger" id="btn-cancelar">
+                        <button type="button" class="btn btn-outline-danger btn-accion-cancelar" id="btn-cancelar">
 
                             <i class="bi bi-x-circle me-1"></i>
                             Cancelar mis reservas
 
                         </button>
 
-                        <button type="button" class="btn btn-success" id="btn-confirmar">
+                        <button type="button" class="btn btn-success btn-accion-confirmar" id="btn-confirmar">
 
                             <i class="bi bi-check-circle me-1"></i>
                             Confirmar unidades
@@ -276,6 +276,58 @@
         </section>
 
     </main>
+
+    <div class="modal fade" id="modal-confirmar-liberacion" tabindex="-1"
+        aria-labelledby="titulo-confirmar-liberacion" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="titulo-confirmar-liberacion">
+                        Liberar reserva
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Deseas liberar esta reserva de emergencia?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        Mantener reserva
+                    </button>
+                    <button type="button" class="btn btn-outline-danger rounded-pill px-3" id="btn-aceptar-liberacion">
+                        <i class="bi bi-unlock me-1"></i>
+                        Sí, liberar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-confirmar-unidades" tabindex="-1"
+        aria-labelledby="titulo-confirmar-unidades" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="titulo-confirmar-unidades">
+                        Confirmar unidades
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Deseas confirmar las unidades reservadas e incorporarlas a la programación?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        Revisar reservas
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-3" id="btn-aceptar-confirmacion">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Sí, confirmar unidades
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="site-footer"></div>
 

@@ -66,7 +66,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </h2>
                 </div>
 
-                <span class="badge rounded-pill fs-6 ${obtenerClaseEstado(solicitud.estado)}">
+                <span class="badge rounded-pill fs-6 estado-badge"
+                    data-estado="${escaparHTML(solicitud.estado)}">
                     ${escaparHTML(solicitud.estado)}
                 </span>
 
@@ -132,30 +133,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             <div class="d-flex justify-content-end mt-4">
                 <a href="/pages/solicitud/gestionarMisSolicitudes.html"
-                   class="btn btn-outline-danger">
+                   class="btn btn-outline-secondary btn-accion-cancelar">
                     <i class="bi bi-arrow-left me-2"></i>
                     Volver al listado
                 </a>
             </div>
         `;
-    }
-
-    function obtenerClaseEstado(estado) {
-        const estados = {
-            PENDIENTE: "text-bg-success",
-            PAGO_INICIAL_PENDIENTE: "text-bg-warning",
-            PAGO_INICIAL_EFECTUADO: "text-bg-warning",
-            PAGO_INICIAL_CONFIRMADO: "text-bg-warning",
-
-            PAGO_TOTAL_PENDIENTE: "text-bg-dark",
-            PAGO_TOTAL_EFECTUADO: "text-bg-dark",
-            PAGO_TOTAL_CONFIRMADO: "text-bg-dark",
-            PROGRAMADO: "text-bg-primary",
-            FINALIZADO: "text-bg-success",
-            CANCELADO: "text-bg-danger"
-        };
-
-        return estados[estado] || "text-bg-secondary";
     }
 
     function mostrarMensaje(mensaje, tipo) {

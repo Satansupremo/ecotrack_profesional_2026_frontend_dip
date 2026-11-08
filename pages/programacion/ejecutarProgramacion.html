@@ -42,8 +42,6 @@
                 </p>
             </div>
 
-            <div id="mensaje-container"></div>
-
             <!-- Información de la programación -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
@@ -62,6 +60,26 @@
 
                 </div>
             </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-stars text-danger fs-4"></i>
+                        <div>
+                            <span class="text-danger fw-bold small text-uppercase">Sugerencia del coordinador</span>
+                            <h2 class="h5 fw-bold mb-0">Recomendaciones de unidades</h2>
+                        </div>
+                    </div>
+
+                    <div id="recomendaciones-unidades" class="row g-3">
+                        <div class="col-12 text-secondary">
+                            Cargando recomendaciones...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mensaje-container"></div>
 
             <!-- Selección de unidades -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -118,7 +136,7 @@
 
                             <thead class="table-light">
                                 <tr>
-                                    <th>Tipo de vehículo</th>
+                                    <th>Tipo de vehiculo</th>
                                     <th>Placa</th>
                                     <th>Marca</th>
                                     <th>Modelo</th>
@@ -144,12 +162,12 @@
 
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
 
-                        <button type="button" class="btn btn-outline-secondary" id="cancelar">
+                        <button type="button" class="btn btn-light border rounded-pill px-4" id="cancelar">
                             <i class="bi bi-arrow-left me-1"></i>
                             Volver
                         </button>
 
-                        <button type="button" class="btn btn-success" id="ejecutar-programacion" disabled>
+                        <button type="button" class="btn btn-danger rounded-pill px-4 shadow-sm" id="ejecutar-programacion" disabled>
                             <i class="bi bi-play-circle me-1"></i>
                             Ejecutar programación
                         </button>
@@ -161,6 +179,58 @@
 
         </section>
     </main>
+
+    <div class="modal fade" id="modal-confirmacion-ejecucion" tabindex="-1"
+        aria-labelledby="titulo-confirmacion-ejecucion" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="titulo-confirmacion-ejecucion">
+                        Confirmar ejecución
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Deseas ejecutar esta programación? Esta acción cambiará su estado.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        No, cancelar
+                    </button>
+                    <button type="button" id="btn-aceptar-ejecucion" class="btn btn-danger rounded-pill px-3">
+                        <i class="bi bi-play-circle me-1"></i>
+                        Sí, ejecutar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-confirmacion-retiro" tabindex="-1"
+        aria-labelledby="titulo-confirmacion-retiro" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="titulo-confirmacion-retiro">
+                        Confirmar retiro de unidad
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de retirar esta unidad de la programación?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        No, cancelar
+                    </button>
+                    <button type="button" id="btn-aceptar-retiro" class="btn btn-outline-danger rounded-pill px-3">
+                        <i class="bi bi-trash me-1"></i>
+                        Sí, retirar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="site-footer"></div>
 

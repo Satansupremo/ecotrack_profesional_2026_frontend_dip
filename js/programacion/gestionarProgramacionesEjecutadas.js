@@ -10,7 +10,9 @@ let programaciones = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    verificarRolPermitido(["OPERARIO", "ADMINISTRADOR"]);
+    if (!verificarRolPermitido(["OPERARIO", "ADMINISTRADOR"])) {
+        return;
+    }
 
     document.getElementById("buscarProgramacion")
         .addEventListener("input", filtrarProgramaciones);
@@ -18,12 +20,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("btnLimpiarBusqueda")
         .addEventListener("click", limpiarBusqueda);
 
+    document.getElementById("pagina-anterior")
+        .addEventListener("click", () => cambiarPagina(paginaActual - 1));
+
+    document.getElementById("pagina-siguiente")
+        .addEventListener("click", () => cambiarPagina(paginaActual + 1));
+
+    document.getElementById("tablaProgramaciones")
+        .addEventListener("click", event => {
+            const boton = event.target.closest("[data-programacion]");
+
+            if (boton && !boton.disabled) {
+                verSalidas(boton.dataset.programacion);
+            }
+        });
+
     await cargarProgramaciones();
+    ocultarPantallaCarga();
 });
 
 async function cargarProgramaciones() {
 
     mostrarMensaje("", "");
+    const tabla = document.getElementById("tablaProgramaciones");
+    tabla.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center text-secondary py-4">
+                <div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>
+                Cargando programaciones...
+            </td>
+        </tr>
+    `;
 
     try {
 
@@ -81,13 +108,14 @@ async function cargarProgramaciones() {
 
         mostrarMensaje(error.message, "danger");
 
-        document.getElementById("tablaProgramaciones").innerHTML = `
+        tabla.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center text-muted py-4">
+                <td colspan="8" class="text-center text-danger py-4">
                     No se pudieron cargar las programaciones.
                 </td>
             </tr>
         `;
+        renderizarPaginacion();
     }
 }
 
@@ -107,10 +135,6 @@ function renderizarProgramaciones() {
     }
 
     tbody.innerHTML = programaciones.map(programacion => {
-
-        const estadoClase = programacion.estado === "EJECUTANDO"
-            ? "bg-primary"
-            : "bg-warning text-dark";
 
         return `
             <tr>
@@ -146,17 +170,16 @@ function renderizarProgramaciones() {
                 </td>
 
                 <td>
-                    <span class="badge ${estadoClase}">
+                    <span class="badge estado-badge" data-estado="${escaparHTML(programacion.estado)}">
                         ${escaparHTML(programacion.estado)}
                     </span>
                 </td>
 
                 <td>
-                    <button
-                        class="btn btn-sm btn-primary"
-                        onclick="verSalidas(${programacion.idProgramacion})"
-                    >
-                        <i class="bi bi-eye"></i>
+                    <button type="button"
+                        class="btn btn-sm btn-accion-consultar"
+                        data-programacion="${Number(programacion.idProgramacion)}">
+                        <i class="bi bi-eye me-1"></i>
                         Ver salidas
                     </button>
                 </td>
@@ -167,44 +190,19 @@ function renderizarProgramaciones() {
 
 function renderizarPaginacion() {
 
-    const paginacion = document.getElementById("paginacion");
-
     document.getElementById("informacionPagina").textContent =
         `Página ${totalPaginas === 0 ? 0 : paginaActual + 1} de ${totalPaginas}`;
 
-    if (totalPaginas <= 1) {
-        paginacion.innerHTML = "";
-        return;
-    }
+    const anteriorDeshabilitado = totalPaginas <= 1 || paginaActual === 0;
+    const siguienteDeshabilitado =
+        totalPaginas <= 1 || paginaActual >= totalPaginas - 1;
 
-    let html = `
-        <li class="page-item ${paginaActual === 0 ? "disabled" : ""}">
-            <button class="page-link" onclick="cambiarPagina(${paginaActual - 1})">
-                Anterior
-            </button>
-        </li>
-    `;
-
-    for (let i = 0; i < totalPaginas; i++) {
-
-        html += `
-            <li class="page-item ${paginaActual === i ? "active" : ""}">
-                <button class="page-link" onclick="cambiarPagina(${i})">
-                    ${i + 1}
-                </button>
-            </li>
-        `;
-    }
-
-    html += `
-        <li class="page-item ${paginaActual === totalPaginas - 1 ? "disabled" : ""}">
-            <button class="page-link" onclick="cambiarPagina(${paginaActual + 1})">
-                Siguiente
-            </button>
-        </li>
-    `;
-
-    paginacion.innerHTML = html;
+    document.getElementById("item-anterior")
+        .classList.toggle("disabled", anteriorDeshabilitado);
+    document.getElementById("item-siguiente")
+        .classList.toggle("disabled", siguienteDeshabilitado);
+    document.getElementById("pagina-anterior").disabled = anteriorDeshabilitado;
+    document.getElementById("pagina-siguiente").disabled = siguienteDeshabilitado;
 }
 
 async function cambiarPagina(pagina) {
@@ -216,7 +214,9 @@ async function cambiarPagina(pagina) {
     paginaActual = pagina;
     sessionStorage.setItem(CLAVE_PAGINA, paginaActual);
 
+    mostrarPantallaCarga();
     await cargarProgramaciones();
+    ocultarPantallaCarga();
 }
 
 function filtrarProgramaciones() {
@@ -234,19 +234,71 @@ function filtrarProgramaciones() {
     programaciones = filtradas;
     renderizarProgramaciones();
     programaciones = listaOriginal;
+    animarResultadoFiltro();
 }
 
 function limpiarBusqueda() {
 
     document.getElementById("buscarProgramacion").value = "";
 
-    renderizarProgramaciones();
+    filtrarProgramaciones();
+}
+
+function animarResultadoFiltro() {
+    const tabla = document.getElementById("tablaProgramaciones");
+
+    if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        typeof tabla.animate !== "function"
+    ) {
+        return;
+    }
+
+    tabla.animate(
+        [
+            { opacity: 0, transform: "translateY(6px)" },
+            { opacity: 1, transform: "translateY(0)" }
+        ],
+        {
+            duration: 180,
+            easing: "ease-out"
+        }
+    );
 }
 
 function verSalidas(idProgramacion) {
 
     window.location.href =
         `gestionarSalidasProgramacion.html?idProgramacion=${idProgramacion}`;
+}
+
+function mostrarPantallaCarga() {
+    let pantalla = document.getElementById("pantalla-carga");
+
+    if (!pantalla) {
+        pantalla = document.createElement("div");
+        pantalla.id = "pantalla-carga";
+        pantalla.innerHTML = `
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-secondary fw-semibold">Cargando...</p>
+        `;
+        document.body.appendChild(pantalla);
+    }
+
+    pantalla.classList.remove("oculto");
+}
+
+function ocultarPantallaCarga() {
+    const pantalla = document.getElementById("pantalla-carga");
+
+    if (!pantalla) {
+        return;
+    }
+
+    pantalla.classList.add("oculto");
+    setTimeout(() => pantalla.remove(), 300);
 }
 
 function formatearFecha(fecha) {

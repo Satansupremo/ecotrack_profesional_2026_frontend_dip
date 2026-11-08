@@ -174,15 +174,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 : "-";
 
             let acciones = "";
-            let colorEstado = "text-bg-secondary";
 
             if (solicitud.estado === "PAGO_TOTAL_EFECTUADO") {
 
-                colorEstado = "text-bg-warning";
-
                 acciones = `
                     <button type="button"
-                        class="btn btn-success btn-sm"
+                        class="btn btn-success btn-sm btn-accion-confirmar"
                         data-accion="confirmar"
                         data-id="${solicitud.idSolicitud}">
                         <i class="bi bi-check-circle me-1"></i>
@@ -190,7 +187,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </button>
 
                     <button type="button"
-                        class="btn btn-outline-danger btn-sm"
+                        class="btn btn-danger btn-sm btn-accion-rechazar"
                         data-accion="rechazar"
                         data-id="${solicitud.idSolicitud}">
                         <i class="bi bi-x-circle me-1"></i>
@@ -200,11 +197,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             } else if (solicitud.estado === "PAGO_TOTAL_CONFIRMADO") {
 
-                colorEstado = "text-bg-success";
-
                 acciones = `
                     <a href="/pages/programacion/registrarProgramacion.html?id=${solicitud.idSolicitud}"
-                        class="btn btn-primary btn-sm">
+                        class="btn btn-primary btn-sm btn-accion-registrar">
                         <i class="bi bi-calendar-check me-1"></i>
                         Programar recojo
                     </a>
@@ -229,7 +224,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </td>
 
                 <td>
-                    <span class="badge rounded-pill ${colorEstado}">
+                    <span class="badge rounded-pill estado-badge"
+                        data-estado="${escaparHTML(solicitud.estado)}">
                         ${escaparHTML(solicitud.estado)}
                     </span>
                 </td>

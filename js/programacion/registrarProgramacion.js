@@ -96,6 +96,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("descripcion-solicitud").textContent =
             solicitud.descripcion ?? "-";
 
+        document.getElementById("cantidad-unidades").textContent =
+            solicitud.cantidadUnidades ?? "-";
+
+        document.getElementById("razon-cantidad-unidades").textContent =
+            solicitud.razonCantidadUnidades || "-";
+
         document.getElementById("ubicacion-solicitud").textContent =
             solicitud.ubicacion ?? "-";
 
@@ -104,7 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const estadoSolicitud = document.getElementById("estado-solicitud");
         estadoSolicitud.textContent = formatearEstado(solicitud.estado);
-        estadoSolicitud.className = "badge " + obtenerClaseEstado(solicitud.estado);
+        estadoSolicitud.className = "badge estado-badge";
+        estadoSolicitud.dataset.estado = solicitud.estado || "";
 
     }
 
@@ -274,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td class="text-center">
                     <button
                         type="button"
-                        class="btn btn-sm btn-outline-danger"
+                        class="btn btn-sm btn-primary btn-accion-consultar"
                         data-id="${escaparHTML(programacion.idProgramacion)}"
                     >
                         <i class="bi bi-eye me-1"></i>
@@ -405,6 +412,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             botonProgramar.disabled = true;
 
+            setTimeout(() => {
+                window.location.href = "/pages/solicitud/gestionarSolicitudesPagoTotal.html";
+            }, 2500);
+
         } catch (error) {
 
             mostrarMensaje(error.message, "danger");
@@ -467,24 +478,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return estado.replaceAll("_", " ");
 
-    }
-
-    function obtenerClaseEstado(estado) {
-        const estadoNormalizado = String(estado || "").toUpperCase();
-
-        if (estadoNormalizado.includes("PENDIENTE")) {
-            return "bg-warning-subtle text-warning-emphasis";
-        }
-
-        if (estadoNormalizado.includes("APROB") || estadoNormalizado.includes("CONFIRM")) {
-            return "bg-success-subtle text-success-emphasis";
-        }
-
-        if (estadoNormalizado.includes("RECH")) {
-            return "bg-danger-subtle text-danger-emphasis";
-        }
-
-        return "bg-secondary-subtle text-secondary-emphasis";
     }
 
     function escaparHTML(valor) {

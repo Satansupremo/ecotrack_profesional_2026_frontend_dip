@@ -151,7 +151,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </td>
 
                 <td>
-                    <span class="badge rounded-pill text-bg-warning">
+                    <span class="badge rounded-pill estado-badge"
+                        data-estado="${escaparHTML(solicitud.estado)}">
                         ${escaparHTML(solicitud.estado)}
                     </span>
                 </td>
@@ -159,13 +160,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <td>
                     <div class="d-flex justify-content-center gap-2">
                         <a href="/pages/solicitud/confirmarPIE.html?id=${solicitud.idSolicitud}"
-                            class="btn btn-success btn-sm">
+                            class="btn btn-success btn-sm btn-accion-confirmar">
                             <i class="bi bi-check-circle me-1"></i>
                             Confirmar PIE
                         </a>
 
                         <a href="/pages/solicitud/rechazarPIE.html?id=${solicitud.idSolicitud}"
-                            class="btn btn-danger btn-sm">
+                            class="btn btn-danger btn-sm btn-accion-rechazar">
                             <i class="bi bi-x-circle me-1"></i>
                             Rechazar PIE
                         </a>

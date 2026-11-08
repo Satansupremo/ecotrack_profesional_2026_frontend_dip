@@ -5,6 +5,8 @@ let programacionActual = null;
 let unidadesActuales = [];
 let salidasPendientes = [];
 let rolActual = null;
+let idDetalleSalidaPendiente = null;
+let modalConfirmarSalida = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR", "TRANSPORTISTA"]);
@@ -25,6 +27,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 function configurarEventos() {
     document.getElementById("volver").addEventListener("click", volverAProgramaciones);
     document.getElementById("generar-reporte").addEventListener("click", generarReporte);
+
+    const elementoModalSalida = document.getElementById("modal-confirmar-salida");
+    modalConfirmarSalida = bootstrap.Modal.getOrCreateInstance(elementoModalSalida);
+
+    document.getElementById("tabla-unidades").addEventListener("click", event => {
+        const boton = event.target.closest("[data-registrar-salida]");
+
+        if (!boton || boton.disabled) {
+            return;
+        }
+
+        idDetalleSalidaPendiente = Number(boton.dataset.registrarSalida);
+
+        if (Number.isInteger(idDetalleSalidaPendiente) && idDetalleSalidaPendiente > 0) {
+            modalConfirmarSalida.show();
+        }
+    });
+
+    document.getElementById("btn-confirmar-salida").addEventListener("click", async () => {
+        const idDetalle = idDetalleSalidaPendiente;
+        idDetalleSalidaPendiente = null;
+        modalConfirmarSalida.hide();
+
+        if (idDetalle) {
+            await registrarSalida(idDetalle);
+        }
+    });
+
+    elementoModalSalida.addEventListener("hidden.bs.modal", () => {
+        idDetalleSalidaPendiente = null;
+    });
 
     const botonFinalizar = document.getElementById("finalizar-programacion");
 
@@ -254,7 +287,10 @@ function actualizarControlEjecucion() {
         estadoControl.className = "alert alert-success";
 
         botonFinalizar.disabled = false;
-        botonFinalizar.textContent = "Solicitar finalización";
+        botonFinalizar.className =
+            "btn btn-danger btn-lg fw-bold shadow-sm px-4 flex-shrink-0";
+        botonFinalizar.innerHTML =
+            '<i class="bi bi-flag-fill me-2"></i>Solicitar finalización';
 
     } else if (estado === "POR_FINALIZAR") {
         estadoControl.textContent =
@@ -263,7 +299,10 @@ function actualizarControlEjecucion() {
         estadoControl.className = "alert alert-warning";
 
         botonFinalizar.disabled = true;
-        botonFinalizar.textContent = "Finalización solicitada";
+        botonFinalizar.className =
+            "btn btn-outline-warning btn-lg fw-bold px-4 flex-shrink-0";
+        botonFinalizar.innerHTML =
+            '<i class="bi bi-hourglass-split me-2"></i>Finalización solicitada';
 
     } else if (estado === "FINALIZADO") {
         estadoControl.textContent = "La programación ha finalizado correctamente.";
@@ -271,14 +310,19 @@ function actualizarControlEjecucion() {
         estadoControl.className = "alert alert-secondary";
 
         botonFinalizar.disabled = true;
-        botonFinalizar.textContent = "Programación finalizada";
-
+        botonFinalizar.className =
+            "btn btn-outline-success btn-lg fw-bold px-4 flex-shrink-0";
+        botonFinalizar.innerHTML =
+            '<i class="bi bi-check-circle me-2"></i>Programación finalizada';
     } else {
         estadoControl.textContent = `Estado actual: ${formatearEstado(estado)}`;
         estadoControl.className = "alert alert-info";
 
         botonFinalizar.disabled = true;
-        botonFinalizar.textContent = "No disponible";
+        botonFinalizar.className =
+            "btn btn-outline-secondary btn-lg fw-bold px-4 flex-shrink-0";
+        botonFinalizar.innerHTML =
+            '<i class="bi bi-slash-circle me-2"></i>No disponible';
     }
 }
 
@@ -297,51 +341,71 @@ function renderizarProgramacion(programacion) {
 
     contenedor.innerHTML = `
         <div class="row g-3">
-            <div class="col-md-4">
-                <strong>Código de programación:</strong>
-                <p>${escaparHTML(programacion.idProgramacion)}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Código de programación</span>
+                    <span class="fw-bold">#${escaparHTML(programacion.idProgramacion)}</span>
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <strong>Código de solicitud:</strong>
-                <p>${escaparHTML(programacion.idSolicitud)}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Código de solicitud</span>
+                    <span class="fw-bold">#${escaparHTML(programacion.idSolicitud)}</span>
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <strong>Estado:</strong>
-                <p>${escaparHTML(estado)}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Estado</span>
+                    <span class="badge estado-badge" data-estado="${escaparHTML(programacion.estado)}">
+                        ${escaparHTML(estado)}
+                    </span>
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <strong>Fecha de ejecución:</strong>
-                <p>${formatearFecha(programacion.fechaEjecucion)}</p>
-            </div>
-
-            <div class="col-md-4">
-                <strong>Jefe de unidad:</strong>
-                <p>${escaparHTML(
-                    `${programacion.nombreJefeUnidad || ""} ${programacion.apellidoJefeUnidad || ""}`.trim() || "No disponible"
-                )}</p>
-            </div>
-
-            <div class="col-md-4">
-                <strong>Fecha de registro:</strong>
-                <p>${formatearFechaHora(programacion.fechaRegistro)}</p>
-            </div>
-
-            <div class="col-md-6">
-                <strong>Título de la solicitud:</strong>
-                <p>${escaparHTML(programacion.tituloSolicitud || "No disponible")}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Fecha de ejecución</span>
+                    <span class="fw-semibold">${formatearFecha(programacion.fechaEjecucion)}</span>
+                </div>
             </div>
 
             <div class="col-md-6">
-                <strong>Ubicación:</strong>
-                <p>${escaparHTML(programacion.ubicacionSolicitud || "No disponible")}</p>
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Título de la solicitud</span>
+                    <span class="fw-semibold">${escaparHTML(programacion.tituloSolicitud || "No disponible")}</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Ubicación</span>
+                    <span class="fw-semibold">${escaparHTML(programacion.ubicacionSolicitud || "No disponible")}</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Jefe de unidad</span>
+                    <span class="fw-semibold">${escaparHTML(
+                        `${programacion.nombreJefeUnidad || ""} ${programacion.apellidoJefeUnidad || ""}`.trim() || "No disponible"
+                    )}</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small d-block">Fecha de registro</span>
+                    <span class="fw-semibold">${formatearFechaHora(programacion.fechaRegistro)}</span>
+                </div>
             </div>
 
             <div class="col-12">
-                <strong>Descripción:</strong>
-                <p>${escaparHTML(programacion.descripcionSolicitud || "No disponible")}</p>
+                <div class="border rounded-3 p-3">
+                    <span class="text-secondary small d-block">Descripción</span>
+                    <p class="mb-0">${escaparHTML(programacion.descripcionSolicitud || "No disponible")}</p>
+                </div>
             </div>
         </div>
     `;
@@ -353,23 +417,31 @@ function renderizarRecomendaciones(programacion) {
     contenedor.innerHTML = `
         <div class="row g-3">
             <div class="col-md-4">
-                <strong>Cantidad de unidades recomendadas:</strong>
-                <p>${escaparHTML(programacion.cantidadUnidades ?? "No especificada")}</p>
+                <div class="bg-danger-subtle rounded-3 p-3 h-100">
+                    <span class="text-danger-emphasis small fw-semibold d-block">Cantidad de unidades recomendadas</span>
+                    <span class="fs-3 text-danger-emphasis fw-bold">${escaparHTML(programacion.cantidadUnidades ?? "No especificada")}</span>
+                </div>
             </div>
 
-            <div class="col-12">
-                <strong>Razón de la cantidad de unidades:</strong>
-                <p>${escaparHTML(programacion.razonCantidadUnidades || "Sin recomendaciones")}</p>
+            <div class="col-md-8">
+                <div class="bg-light rounded-3 p-3 h-100">
+                    <span class="text-secondary small fw-semibold d-block">Razón de la cantidad de unidades</span>
+                    <p class="mb-0">${escaparHTML(programacion.razonCantidadUnidades || "Sin recomendaciones")}</p>
+                </div>
             </div>
 
-            <div class="col-12">
-                <strong>Equipos de seguridad:</strong>
-                <p>${escaparHTML(programacion.equipoSeguridad || "Sin recomendaciones")}</p>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small fw-semibold d-block">Equipos de seguridad</span>
+                    <p class="mb-0">${escaparHTML(programacion.equipoSeguridad || "Sin recomendaciones")}</p>
+                </div>
             </div>
 
-            <div class="col-12">
-                <strong>Otras recomendaciones:</strong>
-                <p>${escaparHTML(programacion.otrasRecomendaciones || "Sin recomendaciones")}</p>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <span class="text-secondary small fw-semibold d-block">Otras recomendaciones</span>
+                    <p class="mb-0">${escaparHTML(programacion.otrasRecomendaciones || "Sin recomendaciones")}</p>
+                </div>
             </div>
         </div>
     `;
@@ -398,19 +470,23 @@ function renderizarUnidades(unidades) {
             const tieneSalidaPendiente = detallesConSalidaPendiente.has(
                 Number(unidad.idDetalle)
             );
+            const esVolquete = String(unidad.tipoVehiculo || "").trim().toUpperCase() === "VOLQUETE";
 
             let accion = "";
 
             if (tienePermisoGestion() && programacionActual?.estado === "EJECUTANDO") {
                 accion = tieneSalidaPendiente
                     ? `<span class="badge bg-warning text-dark">En camino</span>`
-                    : `
+                    : esVolquete
+                        ? `
                         <button type="button"
-                                class="btn btn-sm btn-primary"
-                                onclick="registrarSalida(${Number(unidad.idDetalle)})">
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                data-registrar-salida="${Number(unidad.idDetalle)}">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>
                             Registrar salida
                         </button>
-                    `;
+                    `
+                        : `<span class="text-secondary small">No requiere registrar salida</span>`;
             } else if (tieneSalidaPendiente) {
                 accion = `<span class="badge bg-warning text-dark">En camino</span>`;
             } else {

@@ -88,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const estadoProgramacion = document.getElementById("estado-programacion");
         estadoProgramacion.textContent = formatearEstado(programacion.estado);
-        estadoProgramacion.className = "badge " + obtenerClaseEstado(programacion.estado);
+        estadoProgramacion.className = "badge estado-badge";
+        estadoProgramacion.dataset.estado = programacion.estado || "";
 
         document.getElementById("fecha-registro-programacion").textContent =
             formatearFechaHora(programacion.fechaRegistro);
@@ -164,24 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return estado.replaceAll("_", " ");
 
-    }
-
-    function obtenerClaseEstado(estado) {
-        const estadoNormalizado = String(estado || "").toUpperCase();
-
-        if (estadoNormalizado.includes("PENDIENTE")) {
-            return "bg-warning-subtle text-warning-emphasis";
-        }
-
-        if (estadoNormalizado.includes("APROB") || estadoNormalizado.includes("CONFIRM")) {
-            return "bg-success-subtle text-success-emphasis";
-        }
-
-        if (estadoNormalizado.includes("RECH")) {
-            return "bg-danger-subtle text-danger-emphasis";
-        }
-
-        return "bg-secondary-subtle text-secondary-emphasis";
     }
 
     // MOSTRAR MENSAJES

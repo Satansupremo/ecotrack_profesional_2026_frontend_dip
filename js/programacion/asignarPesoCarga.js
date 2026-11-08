@@ -11,7 +11,17 @@ let cargaActual = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    verificarRolPermitido(["OPERARIO", "ADMINISTRADOR"]);
+    if (!verificarRolPermitido(["OPERARIO", "ADMINISTRADOR"])) {
+        return;
+    }
+
+    const modalFinalizacionElemento = document.getElementById("modal-confirmar-finalizacion");
+    const modalFinalizacion = bootstrap.Modal.getOrCreateInstance(modalFinalizacionElemento);
+    document.getElementById("btn-confirmar-finalizacion")
+        .addEventListener("click", async () => {
+            modalFinalizacion.hide();
+            await confirmarFinalizarCarga();
+        });
 
     if (!idCola || !idProgramacion
         || !Number.isInteger(Number(idCola))
@@ -21,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         mostrarMensaje("No se recibieron los datos válidos de la salida.", "danger");
         document.getElementById("seccionPeso").classList.add("d-none");
+        revelarContenido();
         return;
     }
 
@@ -31,9 +42,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         `#${idCola}`;
 
     document.getElementById("btnVolver").href =
-        `gestionarSalidasProgramacion.html?idProgramacion=${idProgramacion}`;
+        obtenerUrlRetornoSalidas();
 
     await recuperarCargaExistente();
+    revelarContenido();
 });
 
 
@@ -54,7 +66,7 @@ async function recuperarCargaExistente() {
 
         if (!resultado.data) {
             cargaActual = null;
-            mostrarEtapaPeso();
+            mostrarEtapaPeso(false);
             return;
         }
 
@@ -77,11 +89,11 @@ async function recuperarCargaExistente() {
             );
 
             window.location.href =
-                `gestionarSalidasProgramacion.html?idProgramacion=${idProgramacion}`;
+                obtenerUrlRetornoSalidas();
             return;
         }
 
-        mostrarEtapaArticulos();
+        mostrarEtapaArticulos(false);
 
     } catch (error) {
 
@@ -93,22 +105,20 @@ async function recuperarCargaExistente() {
 }
 
 
-function mostrarEtapaPeso() {
+function mostrarEtapaPeso(animar = true) {
 
-    document.getElementById("seccionPeso").classList.remove("d-none");
-    document.getElementById("seccionArticulos").classList.add("d-none");
+    cambiarEtapa("seccionArticulos", "seccionPeso", animar);
 
     document.getElementById("estadoCarga").textContent =
         "Pendiente de registro";
 
     document.getElementById("btnGuardarPeso").innerHTML =
-        '<i class="bi bi-save me-1"></i> Guardar peso';
+        '<i class="bi bi-save me-1"></i> Guardar peso y continuar';
 }
 
-function mostrarEtapaArticulos() {
+function mostrarEtapaArticulos(animar = true) {
 
-    document.getElementById("seccionPeso").classList.add("d-none");
-    document.getElementById("seccionArticulos").classList.remove("d-none");
+    cambiarEtapa("seccionPeso", "seccionArticulos", animar);
 
     document.getElementById("estadoCarga").textContent =
         "En proceso";
@@ -120,7 +130,7 @@ function mostrarEtapaArticulos() {
         cargaActual.pesoLibras;
 
     document.getElementById("btnGuardarPeso").innerHTML =
-        '<i class="bi bi-save me-1"></i> Guardar peso';
+        '<i class="bi bi-save me-1"></i> Actualizar peso';
 
     if (document.getElementById("contenedorArticulos").children.length === 0) {
         agregarArticulo();
@@ -188,7 +198,7 @@ function agregarArticulo() {
 
     const fila = document.createElement("div");
 
-    fila.className = "row g-2 align-items-end mb-3";
+    fila.className = "row g-2 align-items-end p-3 bg-light rounded-3 mb-3 mx-0";
 
     fila.innerHTML = `
         <div class="col-md-7">
@@ -207,7 +217,7 @@ function agregarArticulo() {
 
         <div class="col-md-2">
             <button type="button"
-                    class="btn btn-outline-danger w-100"
+                    class="btn btn-outline-danger w-100 btn-accion-eliminar"
                     onclick="eliminarArticulo(this)">
                 <i class="bi bi-trash"></i>
                 Eliminar
@@ -223,7 +233,13 @@ function eliminarArticulo(boton) {
     boton.closest(".row").remove();
 }
 
-async function finalizarCarga() {
+function finalizarCarga() {
+    bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("modal-confirmar-finalizacion")
+    ).show();
+}
+
+async function confirmarFinalizarCarga() {
 
     if (!cargaActual) {
         mostrarMensaje(
@@ -282,7 +298,7 @@ async function finalizarCarga() {
 
         setTimeout(() => {
             window.location.href =
-                `gestionarSalidasProgramacion.html?idProgramacion=${idProgramacion}`;
+                obtenerUrlRetornoSalidas();
         }, 1200);
 
     } catch (error) {
@@ -296,6 +312,17 @@ async function finalizarCarga() {
 
         boton.disabled = false;
     }
+
+}
+
+function obtenerUrlRetornoSalidas() {
+    const parametrosRetorno = new URLSearchParams({
+        idProgramacion,
+        pagina: parametros.get("pagina") || "0",
+        buscar: parametros.get("buscar") || ""
+    });
+
+    return `gestionarSalidasProgramacion.html?${parametrosRetorno.toString()}`;
 }
 
 function mostrarMensaje(mensaje, tipo) {
@@ -308,8 +335,7 @@ function mostrarMensaje(mensaje, tipo) {
 
 function editarPeso() {
 
-    document.getElementById("seccionArticulos").classList.add("d-none");
-    document.getElementById("seccionPeso").classList.remove("d-none");
+    cambiarEtapa("seccionArticulos", "seccionPeso");
 
     document.getElementById("pesoLibras").value =
         cargaActual.pesoLibras;
@@ -319,4 +345,50 @@ function editarPeso() {
 
     document.getElementById("estadoCarga").textContent =
         "Edición del peso";
+}
+
+function cambiarEtapa(idEtapaActual, idEtapaSiguiente, animar = true) {
+    const etapaActual = document.getElementById(idEtapaActual);
+    const etapaSiguiente = document.getElementById(idEtapaSiguiente);
+    const reducirMovimiento = !animar || window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (typeof etapaActual.getAnimations === "function") {
+        etapaActual.getAnimations().forEach(animacion => animacion.cancel());
+        etapaSiguiente.getAnimations().forEach(animacion => animacion.cancel());
+    }
+
+    etapaActual.classList.add("d-none");
+    etapaSiguiente.classList.remove("d-none");
+
+    if (!reducirMovimiento && typeof etapaSiguiente.animate === "function") {
+        etapaSiguiente.animate(
+            [
+                { opacity: 0, transform: "translateY(8px)" },
+                { opacity: 1, transform: "translateY(0)" }
+            ],
+            { duration: 220, easing: "ease-out" }
+        );
+    }
+}
+
+function revelarContenido() {
+    const contenido = document.getElementById("contenido-principal");
+    contenido.classList.remove("opacity-0");
+
+    if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        typeof contenido.animate !== "function"
+    ) {
+        return;
+    }
+
+    contenido.animate(
+        [
+            { opacity: 0, transform: "translateY(10px)" },
+            { opacity: 1, transform: "translateY(0)" }
+        ],
+        { duration: 260, easing: "ease-out" }
+    );
 }

@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function renderizarSolicitud(solicitud) {
         estadoSolicitud.textContent = solicitud.estado || "SIN ESTADO";
+        estadoSolicitud.dataset.estado = solicitud.estado || "";
 
         contenidoSolicitud.innerHTML = `
             <div class="row g-4">

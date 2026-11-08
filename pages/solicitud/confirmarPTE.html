@@ -93,8 +93,10 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="text-secondary small">Monto asignado</label>
-                        <p class="fw-semibold mb-0" id="monto-asignado">-</p>
+                        <div class="bg-primary-subtle border border-primary-subtle rounded-3 p-3 h-100">
+                            <label class="text-primary-emphasis small fw-semibold">Monto asignado</label>
+                            <p class="fw-bold fs-4 text-primary-emphasis mb-0" id="monto-asignado">-</p>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
@@ -135,20 +137,24 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="text-secondary small">Monto pagado</label>
-                        <p class="fw-semibold mb-0" id="monto-pago">-</p>
+                        <div class="bg-primary-subtle border border-primary-subtle rounded-3 p-3 h-100">
+                            <label class="text-primary-emphasis small fw-semibold">Monto pagado</label>
+                            <p class="fw-bold fs-4 text-primary-emphasis mb-0" id="monto-pago">-</p>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
                         <label class="text-secondary small">Estado del pago</label>
                         <p class="mb-0">
-                            <span class="badge bg-warning-subtle text-warning-emphasis" id="estado-pago">-</span>
+                            <span class="badge estado-badge" id="estado-pago">-</span>
                         </p>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="text-secondary small">Medio de pago</label>
-                        <p class="mb-0" id="medio-pago">-</p>
+                        <div class="bg-light border rounded-3 p-3 h-100">
+                            <label class="text-secondary small fw-semibold">Medio de pago</label>
+                            <p class="fw-semibold mb-0" id="medio-pago">-</p>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
@@ -157,13 +163,17 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="text-secondary small">Hora de operación</label>
-                        <p class="mb-0" id="hora-operacion">-</p>
+                        <div class="bg-light border rounded-3 p-3 h-100">
+                            <label class="text-secondary small fw-semibold">Hora de operación</label>
+                            <p class="fw-semibold mb-0" id="hora-operacion">-</p>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="text-secondary small">Número de operación</label>
-                        <p class="mb-0" id="numero-operacion">-</p>
+                        <div class="bg-light border rounded-3 p-3 h-100">
+                            <label class="text-secondary small fw-semibold">Número de operación</label>
+                            <p class="fw-semibold font-monospace mb-0" id="numero-operacion">-</p>
+                        </div>
                     </div>
 
                 </div>
@@ -173,17 +183,17 @@
         <!-- Acciones -->
         <div class="d-flex flex-wrap justify-content-end gap-2">
 
-            <button type="button" class="btn btn-outline-secondary" id="cancelar">
+            <button type="button" class="btn btn-outline-secondary btn-accion-cancelar" id="cancelar">
                 <i class="bi bi-arrow-left me-1"></i>
                 Cancelar
             </button>
 
-            <a href="#" class="btn btn-danger" id="rechazar-pt">
+            <a href="#" class="btn btn-danger btn-accion-rechazar" id="rechazar-pt">
                 <i class="bi bi-x-circle me-1"></i>
                 Rechazar pago total efectuado
             </a>
 
-            <button type="button" class="btn btn-success" id="confirmar-pago">
+            <button type="button" class="btn btn-success btn-accion-confirmar" id="confirmar-pago">
                 <i class="bi bi-check-circle me-1"></i>
                 Confirmar pago
             </button>
@@ -213,11 +223,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-secondary btn-accion-cancelar" data-bs-dismiss="modal">
                         No, cancelar
                     </button>
 
-                    <button type="button" id="btn-aceptar-confirmacion" class="btn btn-success">
+                    <button type="button" id="btn-aceptar-confirmacion" class="btn btn-success btn-accion-confirmar">
                         Sí, confirmar
                     </button>
                 </div>

@@ -68,8 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("fecha-solicitud").textContent =
             formatearFecha(solicitud.fechaRegistro);
 
-        document.getElementById("estado-solicitud").textContent =
-            solicitud.estado || "-";
+        const estadoSolicitud = document.getElementById("estado-solicitud");
+        estadoSolicitud.textContent = solicitud.estado || "-";
+        estadoSolicitud.dataset.estado = solicitud.estado || "";
 
         document.getElementById("nombre-cliente").textContent =
             `${solicitud.nombreUsuario || ""} ${solicitud.apellidoUsuario || ""}`.trim() || "-";

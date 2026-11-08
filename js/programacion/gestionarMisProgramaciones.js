@@ -209,17 +209,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 programacion.apellidoJefeUnidad
             ].filter(Boolean).join(" ");
 
-            let colorEstado = "text-bg-secondary";
             let accionPrincipal = "";
 
             if (programacion.estado === "ASIGNADO") {
 
-                colorEstado = "text-bg-primary";
-
-                if (!esTransportista) {
+                if (!esTransportista && yaLlegoFechaEjecucion(programacion.fechaEjecucion)) {
                     accionPrincipal = `
             <button type="button"
-                class="btn btn-success btn-sm"
+                class="btn btn-success btn-sm btn-accion-confirmar"
                 data-accion="ejecutar"
                 data-id="${programacion.idProgramacion}">
 
@@ -232,12 +229,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             } else if (programacion.estado === "EJECUTANDO") {
 
-                colorEstado = "text-bg-warning";
-
                 if (!esTransportista) {
                     accionPrincipal = `
             <button type="button"
-                class="btn btn-outline-primary btn-sm"
+                class="btn btn-primary btn-sm btn-accion-registrar"
                 data-accion="emergencia"
                 data-id="${programacion.idProgramacion}">
 
@@ -249,8 +244,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
             } else if (programacion.estado === "FINALIZADO") {
-
-                colorEstado = "text-bg-success";
 
                 if (!esTransportista) {
                     accionPrincipal = `
@@ -287,7 +280,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </td>
 
                 <td>
-                    <span class="badge rounded-pill ${colorEstado}">
+                    <span class="badge rounded-pill estado-badge"
+                        data-estado="${escaparHTML(programacion.estado)}">
                         ${escaparHTML(programacion.estado)}
                     </span>
                 </td>
@@ -298,7 +292,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         ${accionPrincipal}
 
                         <button type="button"
-                            class="btn btn-outline-secondary btn-sm"
+                            class="btn btn-primary btn-sm btn-accion-consultar"
                             data-accion="ver"
                             data-id="${programacion.idProgramacion}">
 
@@ -313,6 +307,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             tabla.appendChild(fila);
         });
+    }
+
+    function yaLlegoFechaEjecucion(fechaEjecucion) {
+
+        const fecha = String(fechaEjecucion ?? "").slice(0, 10);
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+            return false;
+        }
+
+        const [anio, mes, dia] = fecha.split("-").map(Number);
+        const fechaValidada = new Date(anio, mes - 1, dia);
+
+        if (
+            fechaValidada.getFullYear() !== anio ||
+            fechaValidada.getMonth() !== mes - 1 ||
+            fechaValidada.getDate() !== dia
+        ) {
+            return false;
+        }
+
+        const ahora = new Date();
+        const hoy = [
+            ahora.getFullYear(),
+            String(ahora.getMonth() + 1).padStart(2, "0"),
+            String(ahora.getDate()).padStart(2, "0")
+        ].join("-");
+
+        return fecha <= hoy;
     }
 
     function actualizarPaginacion() {

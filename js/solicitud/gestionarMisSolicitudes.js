@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 solicitud.estado === "PAGO_INICIAL_PENDIENTE"
                     ? `
                     <a href="/pages/solicitud/registrarPagoInicial.html?id=${solicitud.idSolicitud}"
-                       class="btn btn-sm btn-outline-warning    ">
+                       class="btn btn-sm btn-accion-registrar">
                         <i class="bi bi-credit-card me-1"></i>
                         Registrar pago inicial
                     </a>
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 solicitud.estado === "PAGO_TOTAL_PENDIENTE"
                     ? `
                     <a href="/pages/solicitud/registrarPagoTotal.html?id=${solicitud.idSolicitud}"
-                    class="btn btn-sm btn-outline-dark">
+                    class="btn btn-sm btn-accion-registrar">
                         <i class="bi bi-credit-card me-1"></i>
                         Registrar pago total
                     </a>
@@ -151,14 +151,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${escaparHTML(solicitud.titulo)}</td>
             <td>${fecha}</td>
             <td>
-                <span class="badge rounded-pill ${obtenerClaseEstado(solicitud.estado)}">
+                <span class="badge rounded-pill estado-badge"
+                    data-estado="${escaparHTML(solicitud.estado)}">
                     ${escaparHTML(solicitud.estado)}
                 </span>
             </td>
             <td class="text-center">
                 <div class="d-flex justify-content-center gap-2 flex-wrap">
                     <a href="/pages/solicitud/verSolicitud.html?id=${solicitud.idSolicitud}"
-                       class="btn btn-sm btn-outline-danger">
+                       class="btn btn-sm btn-accion-consultar">
                         <i class="bi bi-eye me-1"></i>
                         Ver
                     </a>
@@ -171,25 +172,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             tabla.appendChild(fila);
         });
-    }
-
-
-    function obtenerClaseEstado(estado) {
-        const estados = {
-            PENDIENTE: "text-bg-success",
-            PAGO_INICIAL_PENDIENTE: "text-bg-warning",
-            PAGO_INICIAL_EFECTUADO: "text-bg-warning",
-            PAGO_INICIAL_CONFIRMADO: "text-bg-warning",
-
-            PAGO_TOTAL_PENDIENTE: "text-bg-dark",
-            PAGO_TOTAL_EFECTUADO: "text-bg-dark",
-            PAGO_TOTAL_CONFIRMADO: "text-bg-dark",
-            PROGRAMADO: "text-bg-primary",
-            FINALIZADO: "text-bg-success",
-            CANCELADO: "text-bg-danger"
-        };
-
-        return estados[estado] || "text-bg-secondary";
     }
 
 
