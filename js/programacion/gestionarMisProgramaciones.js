@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    if (!verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR"])) {
+    if (!verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR", "TRANSPORTISTA"])) {
         return;
     }
 
@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonActualizar = document.getElementById("actualizar-listado");
 
     const CLAVE_PAGINA = "paginaMisProgramaciones";
+
+    const usuario = obtenerDatosToken();
+    const esTransportista = usuario?.rol === "TRANSPORTISTA";
 
     let paginaActual = Number(sessionStorage.getItem(CLAVE_PAGINA)) || 0;
     let totalPaginas = 0;
@@ -213,43 +216,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 colorEstado = "text-bg-primary";
 
-                accionPrincipal = `
-                    <button type="button"
-                        class="btn btn-success btn-sm"
-                        data-accion="ejecutar"
-                        data-id="${programacion.idProgramacion}">
+                if (!esTransportista) {
+                    accionPrincipal = `
+            <button type="button"
+                class="btn btn-success btn-sm"
+                data-accion="ejecutar"
+                data-id="${programacion.idProgramacion}">
 
-                        <i class="bi bi-play-circle me-1"></i>
-                        Ejecutar programación
+                <i class="bi bi-play-circle me-1"></i>
+                Ejecutar programación
 
-                    </button>
-                `;
+            </button>
+        `;
+                }
 
             } else if (programacion.estado === "EJECUTANDO") {
 
                 colorEstado = "text-bg-warning";
 
-                accionPrincipal = `
-                    <button type="button"
-                        class="btn btn-outline-primary btn-sm"
-                        data-accion="emergencia"
-                        data-id="${programacion.idProgramacion}">
+                if (!esTransportista) {
+                    accionPrincipal = `
+            <button type="button"
+                class="btn btn-outline-primary btn-sm"
+                data-accion="emergencia"
+                data-id="${programacion.idProgramacion}">
 
-                        <i class="bi bi-plus-circle me-1"></i>
-                        Añadir unidades de emergencia
+                <i class="bi bi-plus-circle me-1"></i>
+                Añadir unidades de emergencia
 
-                    </button>
-                `;
+            </button>
+        `;
+                }
 
             } else if (programacion.estado === "FINALIZADO") {
 
                 colorEstado = "text-bg-success";
 
-                accionPrincipal = `
-                    <span class="text-secondary small">
-                        Sin acciones pendientes
-                    </span>
-                `;
+                if (!esTransportista) {
+                    accionPrincipal = `
+            <span class="text-secondary small">
+                Sin acciones pendientes
+            </span>
+        `;
+                }
             }
 
             fila.innerHTML = `

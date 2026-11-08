@@ -1,11 +1,13 @@
-
 const API_URL = "http://localhost:8080/api/programacion/mis-programaciones";
+const PROGRAMACION_URL = "http://localhost:8080/api/programacion";
 
 let programacionActual = null;
 let unidadesActuales = [];
+let salidasPendientes = [];
+let rolActual = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR"]);
+    verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR", "TRANSPORTISTA"]);
 
     const idProgramacion = obtenerIdProgramacion();
 
@@ -14,17 +16,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    rolActual = obtenerRolDesdeToken();
+
     configurarEventos();
     await cargarInformacion(idProgramacion);
 });
 
-// =====================================================
-// CONFIGURACIÓN
-// =====================================================
-
 function configurarEventos() {
     document.getElementById("volver").addEventListener("click", volverAProgramaciones);
     document.getElementById("generar-reporte").addEventListener("click", generarReporte);
+
+    const botonFinalizar = document.getElementById("finalizar-programacion");
+
+    if (botonFinalizar) {
+        botonFinalizar.addEventListener("click", finalizarProgramacion);
+    }
 }
 
 function obtenerIdProgramacion() {
@@ -38,9 +44,65 @@ function obtenerIdProgramacion() {
     return Number(id);
 }
 
-// =====================================================
-// CARGA DE INFORMACIÓN
-// =====================================================
+function obtenerRolDesdeToken() {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+        const parteToken = token.split(".")[1];
+        const base64 = parteToken
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
+            .padEnd(Math.ceil(parteToken.length / 4) * 4, "=");
+
+        const payload = JSON.parse(atob(base64));
+        const valores = [];
+
+        function recorrer(objeto) {
+            if (typeof objeto === "string") {
+                valores.push(objeto);
+                return;
+            }
+
+            if (Array.isArray(objeto)) {
+                objeto.forEach(recorrer);
+                return;
+            }
+
+            if (objeto && typeof objeto === "object") {
+                Object.values(objeto).forEach(recorrer);
+            }
+        }
+
+        recorrer(payload);
+
+        const rolesPermitidos = [
+            "ADMINISTRADOR",
+            "JEFE_UNIDAD",
+            "TRANSPORTISTA"
+        ];
+
+        for (const valor of valores) {
+            const rol = valor.replace(/^ROLE_/, "").toUpperCase();
+
+            if (rolesPermitidos.includes(rol)) {
+                return rol;
+            }
+        }
+
+        return null;
+
+    } catch {
+        return null;
+    }
+}
+
+function tienePermisoGestion() {
+    return rolActual === "JEFE_UNIDAD" || rolActual === "ADMINISTRADOR";
+}
 
 async function cargarInformacion(idProgramacion) {
     try {
@@ -66,20 +128,167 @@ async function cargarInformacion(idProgramacion) {
         unidadesActuales = Array.isArray(unidades.data) ? unidades.data : [];
 
         renderizarProgramacion(programacionActual);
+        renderizarRecomendaciones(programacionActual);
+
+        if (tienePermisoGestion()) {
+            await cargarSalidasPendientes(idProgramacion);
+        } else {
+            ocultarControlEjecucion();
+        }
+
         renderizarUnidades(unidadesActuales);
 
         document.getElementById("volver").disabled = false;
 
     } catch (error) {
-        mostrarMensaje(error.message || "Ocurrió un error al cargar la programación.", "danger");
+        mostrarMensaje(
+            error.message || "Ocurrió un error al cargar la programación.",
+            "danger"
+        );
     } finally {
         mostrarPantallaCarga(false);
     }
 }
 
-// =====================================================
-// INFORMACIÓN DE LA PROGRAMACIÓN
-// =====================================================
+async function cargarSalidasPendientes(idProgramacion) {
+    const tbody = document.getElementById("tabla-salidas-pendientes");
+
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Actualizando salidas pendientes...
+                </td>
+            </tr>
+        `;
+    }
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${PROGRAMACION_URL}/${idProgramacion}/cola/pendientes`
+        );
+
+        const resultado = await leerRespuesta(respuesta);
+
+        if (!resultado.success) {
+            throw new Error(resultado.message || "No se pudieron obtener las salidas pendientes.");
+        }
+
+        salidasPendientes = Array.isArray(resultado.data)
+            ? resultado.data
+            : [];
+
+        renderizarSalidasPendientes();
+        actualizarControlEjecucion();
+
+    } catch (error) {
+        salidasPendientes = [];
+
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger py-4">
+                        ${escaparHTML(error.message)}
+                    </td>
+                </tr>
+            `;
+        }
+
+        actualizarControlEjecucion();
+    }
+}
+
+function renderizarSalidasPendientes() {
+    const tbody = document.getElementById("tabla-salidas-pendientes");
+    const total = document.getElementById("total-salidas-pendientes");
+
+    if (!tbody || !total) {
+        return;
+    }
+
+    total.textContent = salidasPendientes.length;
+
+    if (salidasPendientes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    No hay salidas pendientes de recepción.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = salidasPendientes.map(salida => `
+        <tr>
+            <td>${escaparHTML(salida.idCola)}</td>
+            <td>${escaparHTML(formatearTipoVehiculo(salida.tipoVehiculo))}</td>
+            <td>${escaparHTML(salida.placaVehiculo || "No disponible")}</td>
+            <td>${escaparHTML(
+                `${salida.nombreTransportista || ""} ${salida.apellidoTransportista || ""}`.trim() || "No disponible"
+            )}</td>
+            <td>${formatearFechaHora(salida.fechaRegistro)}</td>
+            <td>
+                <span class="badge bg-warning text-dark">En camino</span>
+            </td>
+        </tr>
+    `).join("");
+}
+
+function actualizarControlEjecucion() {
+    const seccion = document.getElementById("seccion-control-ejecucion");
+    const estadoControl = document.getElementById("estado-control-ejecucion");
+    const botonFinalizar = document.getElementById("finalizar-programacion");
+
+    if (!seccion || !estadoControl || !botonFinalizar || !programacionActual) {
+        return;
+    }
+
+    seccion.style.display = "block";
+
+    const estado = programacionActual.estado;
+
+    if (estado === "EJECUTANDO") {
+        estadoControl.textContent = "La programación se encuentra en ejecución.";
+        estadoControl.className = "alert alert-success";
+
+        botonFinalizar.disabled = false;
+        botonFinalizar.textContent = "Solicitar finalización";
+
+    } else if (estado === "POR_FINALIZAR") {
+        estadoControl.textContent =
+            `La programación está pendiente de finalizar. Quedan ${salidasPendientes.length} salidas por recibir.`;
+
+        estadoControl.className = "alert alert-warning";
+
+        botonFinalizar.disabled = true;
+        botonFinalizar.textContent = "Finalización solicitada";
+
+    } else if (estado === "FINALIZADO") {
+        estadoControl.textContent = "La programación ha finalizado correctamente.";
+
+        estadoControl.className = "alert alert-secondary";
+
+        botonFinalizar.disabled = true;
+        botonFinalizar.textContent = "Programación finalizada";
+
+    } else {
+        estadoControl.textContent = `Estado actual: ${formatearEstado(estado)}`;
+        estadoControl.className = "alert alert-info";
+
+        botonFinalizar.disabled = true;
+        botonFinalizar.textContent = "No disponible";
+    }
+}
+
+function ocultarControlEjecucion() {
+    const seccion = document.getElementById("seccion-control-ejecucion");
+
+    if (seccion) {
+        seccion.style.display = "none";
+    }
+}
 
 function renderizarProgramacion(programacion) {
     const contenedor = document.getElementById("informacion-programacion");
@@ -136,13 +345,7 @@ function renderizarProgramacion(programacion) {
             </div>
         </div>
     `;
-
-    renderizarRecomendaciones(programacion);
 }
-
-// =====================================================
-// RECOMENDACIONES
-// =====================================================
 
 function renderizarRecomendaciones(programacion) {
     const contenedor = document.getElementById("informacion-recomendaciones");
@@ -172,56 +375,162 @@ function renderizarRecomendaciones(programacion) {
     `;
 }
 
-// =====================================================
-// UNIDADES ASIGNADAS
-// =====================================================
-
 function renderizarUnidades(unidades) {
     const tbody = document.getElementById("tabla-unidades");
     const total = document.getElementById("total-unidades");
 
     total.textContent = unidades.length;
 
+    const detallesConSalidaPendiente = new Set(
+        salidasPendientes.map(salida => Number(salida.idDetalle))
+    );
+
     if (unidades.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center py-4">
+                <td colspan="9" class="text-center py-4">
                     No hay unidades asignadas a esta programación.
                 </td>
             </tr>
         `;
     } else {
-        tbody.innerHTML = unidades.map(unidad => `
-            <tr>
-                <td>${escaparHTML(unidad.idDetalle)}</td>
-                <td>${escaparHTML(formatearTipoVehiculo(unidad.tipoVehiculo))}</td>
-                <td>${escaparHTML(unidad.placa || "No disponible")}</td>
-                <td>${escaparHTML(unidad.marca || "No disponible")}</td>
-                <td>${escaparHTML(unidad.modelo || "No disponible")}</td>
-                <td>${escaparHTML(unidad.capacidadLibras ?? "No disponible")}</td>
-                <td>${escaparHTML(
-                    `${unidad.nombreTransportista || ""} ${unidad.apellidoTransportista || ""}`.trim() || "No disponible"
-                )}</td>
-                <td>${escaparHTML(unidad.celular || "No disponible")}</td>
-            </tr>
-        `).join("");
+        tbody.innerHTML = unidades.map(unidad => {
+            const tieneSalidaPendiente = detallesConSalidaPendiente.has(
+                Number(unidad.idDetalle)
+            );
+
+            let accion = "";
+
+            if (tienePermisoGestion() && programacionActual?.estado === "EJECUTANDO") {
+                accion = tieneSalidaPendiente
+                    ? `<span class="badge bg-warning text-dark">En camino</span>`
+                    : `
+                        <button type="button"
+                                class="btn btn-sm btn-primary"
+                                onclick="registrarSalida(${Number(unidad.idDetalle)})">
+                            Registrar salida
+                        </button>
+                    `;
+            } else if (tieneSalidaPendiente) {
+                accion = `<span class="badge bg-warning text-dark">En camino</span>`;
+            } else {
+                accion = `<span class="text-muted">No disponible</span>`;
+            }
+
+            return `
+                <tr>
+                    <td>${escaparHTML(unidad.idDetalle)}</td>
+                    <td>${escaparHTML(formatearTipoVehiculo(unidad.tipoVehiculo))}</td>
+                    <td>${escaparHTML(unidad.placa || "No disponible")}</td>
+                    <td>${escaparHTML(unidad.marca || "No disponible")}</td>
+                    <td>${escaparHTML(unidad.modelo || "No disponible")}</td>
+                    <td>${escaparHTML(unidad.capacidadLibras ?? "No disponible")}</td>
+                    <td>${escaparHTML(
+                        `${unidad.nombreTransportista || ""} ${unidad.apellidoTransportista || ""}`.trim() || "No disponible"
+                    )}</td>
+                    <td>${escaparHTML(unidad.celular || "No disponible")}</td>
+                    <td>${accion}</td>
+                </tr>
+            `;
+        }).join("");
     }
 
-    // El reporte requiere al menos una unidad activa.
     document.getElementById("generar-reporte").disabled = unidades.length === 0;
 }
 
-// =====================================================
-// NAVEGACIÓN
-// =====================================================
+async function registrarSalida(idDetalle) {
+    if (!tienePermisoGestion()) {
+        mostrarMensaje("No tienes permisos para registrar salidas.", "danger");
+        return;
+    }
+
+    if (!programacionActual || programacionActual.estado !== "EJECUTANDO") {
+        mostrarMensaje("Solo se pueden registrar salidas en programaciones en ejecución.", "warning");
+        return;
+    }
+
+    try {
+        mostrarPantallaCarga(true);
+
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/${programacionActual.idProgramacion}/cola/${idDetalle}`,
+            {
+                method: "POST"
+            }
+        );
+
+        const resultado = await leerRespuesta(respuesta);
+
+        if (!resultado.success) {
+            throw new Error(resultado.message || "No se pudo registrar la salida.");
+        }
+
+        mostrarMensaje(
+            resultado.message || "Salida registrada correctamente.",
+            "success"
+        );
+
+        await cargarInformacion(programacionActual.idProgramacion);
+
+    } catch (error) {
+        mostrarMensaje(error.message || "Ocurrió un error al registrar la salida.", "danger");
+    } finally {
+        mostrarPantallaCarga(false);
+    }
+}
+
+async function finalizarProgramacion() {
+    if (!tienePermisoGestion()) {
+        mostrarMensaje("No tienes permisos para finalizar esta programación.", "danger");
+        return;
+    }
+
+    if (!programacionActual || programacionActual.estado !== "EJECUTANDO") {
+        mostrarMensaje("La programación no se encuentra en ejecución.", "warning");
+        return;
+    }
+
+    const confirmar = confirm(
+        "¿Deseas solicitar la finalización de esta programación?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+        mostrarPantallaCarga(true);
+
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/${programacionActual.idProgramacion}/finalizar`,
+            {
+                method: "PUT"
+            }
+        );
+
+        const resultado = await leerRespuesta(respuesta);
+
+        if (!resultado.success) {
+            throw new Error(resultado.message || "No se pudo finalizar la programación.");
+        }
+
+        mostrarMensaje(
+            resultado.message || "Se procesó la solicitud de finalización.",
+            "success"
+        );
+
+        await cargarInformacion(programacionActual.idProgramacion);
+
+    } catch (error) {
+        mostrarMensaje(error.message || "Ocurrió un error al finalizar la programación.", "danger");
+    } finally {
+        mostrarPantallaCarga(false);
+    }
+}
 
 function volverAProgramaciones() {
     window.location.href = "/pages/programacion/gestionarMisProgramaciones.html";
 }
-
-// =====================================================
-// PETICIONES HTTP
-// =====================================================
 
 async function fetchAutenticado(url, opciones = {}) {
     const token = sessionStorage.getItem("token");
@@ -241,24 +550,25 @@ async function fetchAutenticado(url, opciones = {}) {
 }
 
 async function leerRespuesta(respuesta) {
-    let resultado;
+    const texto = await respuesta.text();
+    let resultado = {};
 
-    try {
-        resultado = await respuesta.json();
-    } catch {
-        throw new Error("El servidor devolvió una respuesta no válida.");
+    if (texto) {
+        try {
+            resultado = JSON.parse(texto);
+        } catch {
+            throw new Error("El servidor devolvió una respuesta no válida.");
+        }
     }
 
     if (!respuesta.ok) {
-        throw new Error(resultado.message || "No se pudo completar la solicitud.");
+        throw new Error(
+            resultado.message || `No se pudo completar la solicitud. Código HTTP: ${respuesta.status}`
+        );
     }
 
     return resultado;
 }
-
-// =====================================================
-// UTILIDADES
-// =====================================================
 
 function mostrarMensaje(mensaje, tipo = "info") {
     const contenedor = document.getElementById("mensaje-container");
@@ -317,6 +627,7 @@ function formatearEstado(estado) {
     const estados = {
         ASIGNADO: "Asignado",
         EJECUTANDO: "En ejecución",
+        POR_FINALIZAR: "Pendiente de finalización",
         FINALIZADO: "Finalizado"
     };
 
@@ -334,8 +645,6 @@ function formatearTipoVehiculo(tipo) {
 
     return tipos[tipo] || tipo || "No disponible";
 }
-
-
 
 function generarReporte() {
     if (!programacionActual || unidadesActuales.length === 0) {
@@ -359,10 +668,6 @@ function generarReporte() {
     const negro = [35, 35, 35];
 
     const fechaGeneracion = new Date().toLocaleString("es-PE");
-
-    // =================================================
-    // PÁGINA 1: DATOS DE LA PROGRAMACIÓN
-    // =================================================
 
     dibujarEncabezadoReporte(
         documento,
@@ -420,7 +725,6 @@ function generarReporte() {
 
     posicionY = documento.lastAutoTable.finalY + 10;
 
-    // Descripción de la solicitud
     documento.setFont("helvetica", "bold");
     documento.setFontSize(12);
     documento.setTextColor(...negro);
@@ -436,7 +740,6 @@ function generarReporte() {
 
     posicionY += 7;
 
-    // Recomendaciones
     documento.setFont("helvetica", "bold");
     documento.setFontSize(12);
     documento.setTextColor(...negro);
@@ -487,10 +790,6 @@ function generarReporte() {
             1: { cellWidth: "auto" }
         }
     });
-
-    // =================================================
-    // PÁGINA 2: UNIDADES ASIGNADAS
-    // =================================================
 
     documento.addPage("a4", "landscape");
 
@@ -582,20 +881,14 @@ function generarReporte() {
         }
     });
 
-    // Pie de página de la primera página
     documento.setPage(1);
     dibujarPieReporte(documento, fechaGeneracion);
 
-    // Descargar PDF
     documento.save(
         `Reporte_Programacion_${programacionActual.idProgramacion}.pdf`
     );
 }
 
-
-// =====================================================
-// ENCABEZADO DEL REPORTE
-// =====================================================
 
 function dibujarEncabezadoReporte(documento, titulo, subtitulo) {
     const rojo = [255, 49, 49];
@@ -630,10 +923,6 @@ function dibujarEncabezadoReporte(documento, titulo, subtitulo) {
     );
 }
 
-// =====================================================
-// TEXTO CON AJUSTE AUTOMÁTICO
-// =====================================================
-
 function dibujarTextoReporte(documento, texto, posicionY) {
     const margenIzquierdo = 15;
     const anchoMaximo = documento.internal.pageSize.getWidth() - 30;
@@ -651,10 +940,6 @@ function dibujarTextoReporte(documento, texto, posicionY) {
 
     return posicionY + (lineas.length * 4.5);
 }
-
-// =====================================================
-// PIE DE PÁGINA
-// =====================================================
 
 function dibujarPieReporte(documento, fechaGeneracion) {
     const ancho = documento.internal.pageSize.getWidth();

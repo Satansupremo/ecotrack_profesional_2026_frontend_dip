@@ -92,6 +92,9 @@ function actualizarHeader() {
 
     const menuMisSolicitudes = document.getElementById("menu-mis-solicitudes");
     const menuMisProgramaciones = document.getElementById("menu-mis-programaciones");
+    const contadorMisProgramaciones = document.getElementById("contador-mis-programaciones");
+    const menuProgramacionesEjecutadas = document.getElementById("menu-programaciones-ejecutadas");
+
     const menuSolicitudesPendientes = document.getElementById("menu-solicitudes-pendientes");
     const menuSolicitudesPIE = document.getElementById("menu-solicitudes-pie");
     const menuSolicitudesPIConfirmadas = document.getElementById("menu-solicitudes-pi-confirmadas");
@@ -119,16 +122,47 @@ function actualizarHeader() {
 
         menuMisSolicitudes?.classList.remove("d-none");
 
-        const rolesGestionProgramaciones = ["ADMINISTRADOR", "JEFE_UNIDAD"];
-        const tienePermisoProgramaciones = rolesGestionProgramaciones.includes(usuario.rol);
+        const rolesGestionProgramaciones = [
+            "ADMINISTRADOR",
+            "JEFE_UNIDAD",
+            "TRANSPORTISTA"
+        ];
+
+        const tienePermisoProgramaciones =
+            rolesGestionProgramaciones.includes(usuario.rol);
 
         menuMisProgramaciones?.classList.toggle(
             "d-none",
             !tienePermisoProgramaciones
         );
 
-        const rolesGestionSolicitudes = ["ADMINISTRADOR", "COORDINADOR"];
-        const tienePermisoGestion = rolesGestionSolicitudes.includes(usuario.rol);
+        if (tienePermisoProgramaciones) {
+            actualizarContadorMisProgramaciones();
+        } else if (contadorMisProgramaciones) {
+            contadorMisProgramaciones.textContent = "";
+            contadorMisProgramaciones.classList.add("d-none");
+        }
+
+        const rolesGestionEjecutadas = [
+            "OPERARIO",
+            "ADMINISTRADOR"
+        ];
+
+        const tienePermisoEjecutadas =
+            rolesGestionEjecutadas.includes(usuario.rol);
+
+        menuProgramacionesEjecutadas?.classList.toggle(
+            "d-none",
+            !tienePermisoEjecutadas
+        );
+
+        const rolesGestionSolicitudes = [
+            "ADMINISTRADOR",
+            "COORDINADOR"
+        ];
+
+        const tienePermisoGestion =
+            rolesGestionSolicitudes.includes(usuario.rol);
 
         if (tienePermisoGestion) {
             menuSolicitudesPendientes?.classList.remove("d-none");
@@ -152,10 +186,16 @@ function actualizarHeader() {
         notificationMenu?.classList.add("d-none");
 
         menuMisProgramaciones?.classList.add("d-none");
+        menuProgramacionesEjecutadas?.classList.add("d-none");
         menuSolicitudesPendientes?.classList.add("d-none");
         menuSolicitudesPIE?.classList.add("d-none");
         menuSolicitudesPIConfirmadas?.classList.add("d-none");
         menuSolicitudesPagoTotal?.classList.add("d-none");
+
+        if (contadorMisProgramaciones) {
+            contadorMisProgramaciones.textContent = "";
+            contadorMisProgramaciones.classList.add("d-none");
+        }
     }
 
     if (logoutButton && !logoutButton.dataset.eventoRegistrado) {
@@ -190,6 +230,13 @@ async function actualizarContadoresSolicitudes() {
             "contador-solicitudes-pago-total"
         )
     ]);
+}
+
+async function actualizarContadorMisProgramaciones() {
+    await actualizarContador(
+        "http://localhost:8080/api/programacion/mis-programaciones/asignadas/total",
+        "contador-mis-programaciones"
+    );
 }
 
 async function actualizarContador(url, elementoId) {
