@@ -182,7 +182,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const anio = Number(partes[1]);
         const mes = Number(partes[2]);
         const dia = Number(partes[3]);
-        const valor = new Date(anio, mes - 1, dia);
+        const valor = new Date(0);
+        valor.setFullYear(anio, mes - 1, dia);
 
         if (
             valor.getFullYear() !== anio ||
@@ -192,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return fecha;
         }
 
-        return valor.toLocaleDateString("es-PE");
+        return `${partes[3]}/${partes[2]}/${partes[1]}`;
     }
 
     function mostrarMensaje(mensaje, tipo) {

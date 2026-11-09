@@ -43,12 +43,42 @@
 
                     <h5 class="fw-bold mb-4">Información de la asignación</h5>
 
-                    <div class="mb-4">
-                        <label class="form-label text-muted">Código de solicitud</label>
-                        <p id="codigo-solicitud" class="fw-semibold mb-0">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                        <h5 class="fw-bold mb-0">Información de la solicitud</h5>
+                        <span id="estado-solicitud" class="badge rounded-pill estado-badge"
+                            data-estado="">
                             Cargando...
-                        </p>
+                        </span>
                     </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Código de solicitud</label>
+                            <p id="codigo-solicitud" class="fw-semibold mb-0">Cargando...</p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Fecha de registro</label>
+                            <p id="fecha-registro" class="fw-semibold mb-0">Cargando...</p>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted">Título</label>
+                            <p id="titulo-solicitud" class="fw-semibold mb-0">Cargando...</p>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted">Descripción</label>
+                            <p id="descripcion-solicitud" class="mb-0">Cargando...</p>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-muted">Ubicación</label>
+                            <p id="ubicacion-solicitud" class="mb-0">Cargando...</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
 
                     <form id="form-asignacion" novalidate>
 

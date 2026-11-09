@@ -131,10 +131,6 @@ function mostrarEtapaArticulos(animar = true) {
 
     document.getElementById("btnGuardarPeso").innerHTML =
         '<i class="bi bi-save me-1"></i> Actualizar peso';
-
-    if (document.getElementById("contenedorArticulos").children.length === 0) {
-        agregarArticulo();
-    }
 }
 
 async function guardarPeso() {

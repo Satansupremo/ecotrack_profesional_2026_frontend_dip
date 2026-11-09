@@ -1,8 +1,20 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
+    registrarCapturaErrores404();
     await inicializarLayout();
     ocultarPantallaCarga();
 });
+
+function registrarCapturaErrores404() {
+    if (!("serviceWorker" in navigator)) {
+        return;
+    }
+
+    navigator.serviceWorker.register("/service-worker.js")
+        .catch(error => {
+            console.error("No se pudo activar la captura de páginas inexistentes.", error);
+        });
+}
 
 async function inicializarLayout() {
     const headerContainer = document.getElementById("site-header");
