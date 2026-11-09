@@ -7,6 +7,7 @@ let salidasPendientes = [];
 let rolActual = null;
 let idDetalleSalidaPendiente = null;
 let modalConfirmarSalida = null;
+let modalConfirmarFinalizacion = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     verificarRolPermitido(["JEFE_UNIDAD", "ADMINISTRADOR", "TRANSPORTISTA"]);
@@ -30,6 +31,8 @@ function configurarEventos() {
 
     const elementoModalSalida = document.getElementById("modal-confirmar-salida");
     modalConfirmarSalida = bootstrap.Modal.getOrCreateInstance(elementoModalSalida);
+    const elementoModalFinalizacion = document.getElementById("modal-confirmar-finalizacion");
+    modalConfirmarFinalizacion = bootstrap.Modal.getOrCreateInstance(elementoModalFinalizacion);
 
     document.getElementById("tabla-unidades").addEventListener("click", event => {
         const boton = event.target.closest("[data-registrar-salida]");
@@ -62,8 +65,14 @@ function configurarEventos() {
     const botonFinalizar = document.getElementById("finalizar-programacion");
 
     if (botonFinalizar) {
-        botonFinalizar.addEventListener("click", finalizarProgramacion);
+        botonFinalizar.addEventListener("click", solicitarFinalizacionProgramacion);
     }
+
+    document.getElementById("btn-confirmar-finalizacion")
+        .addEventListener("click", async () => {
+            modalConfirmarFinalizacion.hide();
+            await finalizarProgramacion();
+        });
 }
 
 function obtenerIdProgramacion() {
@@ -566,14 +575,6 @@ async function finalizarProgramacion() {
         return;
     }
 
-    const confirmar = confirm(
-        "¿Deseas solicitar la finalización de esta programación?"
-    );
-
-    if (!confirmar) {
-        return;
-    }
-
     try {
         mostrarPantallaCarga(true);
 
@@ -602,6 +603,20 @@ async function finalizarProgramacion() {
     } finally {
         mostrarPantallaCarga(false);
     }
+}
+
+function solicitarFinalizacionProgramacion() {
+    if (!tienePermisoGestion()) {
+        mostrarMensaje("No tienes permisos para finalizar esta programación.", "danger");
+        return;
+    }
+
+    if (!programacionActual || programacionActual.estado !== "EJECUTANDO") {
+        mostrarMensaje("La programación no se encuentra en ejecución.", "warning");
+        return;
+    }
+
+    modalConfirmarFinalizacion.show();
 }
 
 function volverAProgramaciones() {
@@ -976,7 +991,7 @@ function dibujarEncabezadoReporte(documento, titulo, subtitulo) {
     documento.setFont("helvetica", "bold");
     documento.setFontSize(22);
     documento.setTextColor(...rojo);
-    documento.text("EcoTrack", 15, 20);
+    documento.text("Ecotrack", 15, 20);
 
     documento.setFont("helvetica", "bold");
     documento.setFontSize(14);
@@ -1030,7 +1045,7 @@ function dibujarPieReporte(documento, fechaGeneracion) {
     documento.setTextColor(110, 110, 110);
 
     documento.text(
-        `EcoTrack | Generado: ${fechaGeneracion}`,
+        `Ecotrack | Generado: ${fechaGeneracion}`,
         10,
         alto - 9
     );

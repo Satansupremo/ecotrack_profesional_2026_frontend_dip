@@ -85,6 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("medio-pago").textContent =
             pago.nombreMedioPago || "-";
 
+        document.getElementById("fecha-operacion").textContent =
+            formatearFechaOperacion(pago.fechaOperacion);
+
         document.getElementById("hora-operacion").textContent =
             pago.horaOperacion || "-";
 
@@ -164,6 +167,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return valor.toLocaleString("es-PE");
+    }
+
+    function formatearFechaOperacion(fecha) {
+        if (!fecha) {
+            return "-";
+        }
+
+        const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(fecha);
+        if (!partes) {
+            return fecha;
+        }
+
+        const anio = Number(partes[1]);
+        const mes = Number(partes[2]);
+        const dia = Number(partes[3]);
+        const valor = new Date(anio, mes - 1, dia);
+
+        if (
+            valor.getFullYear() !== anio ||
+            valor.getMonth() !== mes - 1 ||
+            valor.getDate() !== dia
+        ) {
+            return fecha;
+        }
+
+        return valor.toLocaleDateString("es-PE");
     }
 
     function mostrarMensaje(mensaje, tipo) {

@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm py-3 ecotrack-navbar">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2 gap-sm-3 me-lg-4" href="/index.html"
-            aria-label="EcoTrack, inicio">
+            aria-label="Ecotrack, inicio">
             <span class="ecotrack-navbar-logo text-danger lh-1" aria-hidden="true">♻</span>
 
             <span class="d-flex flex-column ecotrack-navbar-brand-text">
@@ -12,12 +12,12 @@
             </span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarEcoTrack"
-            aria-controls="navbarEcoTrack" aria-expanded="false" aria-label="Mostrar navegación">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarEcotrack"
+            aria-controls="navbarEcotrack" aria-expanded="false" aria-label="Mostrar navegación">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarEcoTrack">
+        <div class="collapse navbar-collapse" id="navbarEcotrack">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
 
                 <li class="nav-item">
@@ -90,14 +90,14 @@
                         </li>
 
                         <li id="menu-mis-solicitudes">
-                            <a class="dropdown-item fs-6 py-2" href="/pages/solicitud/gestionarMisSolicitudes.html">
+                            <a class="dropdown-item fs-6 py-2 menu-gestion-link" href="/pages/solicitud/gestionarMisSolicitudes.html">
                                 <i class="bi bi-clipboard-check text-danger me-2"></i>
                                 Gestionar mis solicitudes
                             </a>
                         </li>
 
                         <li id="menu-solicitudes-pendientes" class="d-none">
-                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between menu-gestion-link"
                                 href="/pages/solicitud/gestionarSolicitudesPendientes.html">
 
                                 <span>
@@ -112,7 +112,7 @@
                         </li>
 
                         <li id="menu-solicitudes-pie" class="d-none">
-                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between menu-gestion-link"
                                 href="/pages/solicitud/gestionarSolicitudesPIE.html">
 
                                 <span>
@@ -127,7 +127,7 @@
 
 
                         <li id="menu-solicitudes-pi-confirmadas" class="d-none">
-                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between menu-gestion-link"
                                 href="/pages/solicitud/gestionarSolicitudesPIConfirmadas.html">
 
                                 <span>
@@ -141,7 +141,7 @@
                             </a>
                         </li>
                         <li id="menu-solicitudes-pago-total" class="d-none">
-                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between menu-gestion-link"
                                 href="/pages/solicitud/gestionarSolicitudesPagoTotal.html">
 
                                 <span>
@@ -156,7 +156,7 @@
                         </li>
 
                         <li id="menu-mis-programaciones" class="d-none">
-                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between"
+                            <a class="dropdown-item fs-6 py-2 d-flex align-items-center justify-content-between menu-gestion-link"
                                 href="/pages/programacion/gestionarMisProgramaciones.html">
 
                                 <span>
@@ -170,11 +170,43 @@
                         </li>
 
                         <li id="menu-programaciones-ejecutadas" class="d-none">
-                            <a class="dropdown-item fs-6 py-2"
+                            <a class="dropdown-item fs-6 py-2 menu-gestion-link"
                                 href="/pages/programacion/gestionarProgramacionesEjecutadas.html">
 
                                 <i class="bi bi-truck text-danger me-2"></i>
                                 Gestionar programaciones ejecutadas
+                            </a>
+                        </li>
+
+                        <li id="menu-vehiculos" class="d-none">
+                            <a class="dropdown-item fs-6 py-2 menu-gestion-link"
+                                href="/pages/vehiculo/gestionarVehiculos.html">
+                                <i class="bi bi-truck-front text-danger me-2"></i>
+                                Mantener vehículos
+                            </a>
+                        </li>
+
+                        <li id="menu-medios-pago" class="d-none">
+                            <a class="dropdown-item fs-6 py-2 menu-gestion-link"
+                                href="/pages/medio-pago/gestionarMediosPago.html">
+                                <i class="bi bi-credit-card text-danger me-2"></i>
+                                Mantener medios de pago
+                            </a>
+                        </li>
+
+                        <li id="menu-usuarios" class="d-none">
+                            <a class="dropdown-item fs-6 py-2 menu-gestion-link"
+                                href="/pages/usuario/gestionarUsuarios.html">
+                                <i class="bi bi-people text-danger me-2"></i>
+                                Mantener empleados
+                            </a>
+                        </li>
+
+                        <li id="menu-rendimiento-cargas" class="d-none">
+                            <a class="dropdown-item fs-6 py-2"
+                                href="/pages/carga/rendimientoCargas.html">
+                                <i class="bi bi-bar-chart-line text-danger me-2"></i>
+                                Rendimiento de cargas
                             </a>
                         </li>
 

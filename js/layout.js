@@ -94,6 +94,10 @@ function actualizarHeader() {
     const menuMisProgramaciones = document.getElementById("menu-mis-programaciones");
     const contadorMisProgramaciones = document.getElementById("contador-mis-programaciones");
     const menuProgramacionesEjecutadas = document.getElementById("menu-programaciones-ejecutadas");
+    const menuVehiculos = document.getElementById("menu-vehiculos");
+    const menuMediosPago = document.getElementById("menu-medios-pago");
+    const menuUsuarios = document.getElementById("menu-usuarios");
+    const menuRendimientoCargas = document.getElementById("menu-rendimiento-cargas");
 
     const menuSolicitudesPendientes = document.getElementById("menu-solicitudes-pendientes");
     const menuSolicitudesPIE = document.getElementById("menu-solicitudes-pie");
@@ -156,6 +160,23 @@ function actualizarHeader() {
             !tienePermisoEjecutadas
         );
 
+        menuVehiculos?.classList.toggle(
+            "d-none",
+            usuario.rol !== "ADMINISTRADOR"
+        );
+        menuMediosPago?.classList.toggle(
+            "d-none",
+            usuario.rol !== "ADMINISTRADOR"
+        );
+        menuUsuarios?.classList.toggle(
+            "d-none",
+            usuario.rol !== "ADMINISTRADOR"
+        );
+        menuRendimientoCargas?.classList.toggle(
+            "d-none",
+            usuario.rol !== "ADMINISTRADOR"
+        );
+
         const rolesGestionSolicitudes = [
             "ADMINISTRADOR",
             "COORDINADOR"
@@ -187,6 +208,10 @@ function actualizarHeader() {
 
         menuMisProgramaciones?.classList.add("d-none");
         menuProgramacionesEjecutadas?.classList.add("d-none");
+        menuVehiculos?.classList.add("d-none");
+        menuMediosPago?.classList.add("d-none");
+        menuUsuarios?.classList.add("d-none");
+        menuRendimientoCargas?.classList.add("d-none");
         menuSolicitudesPendientes?.classList.add("d-none");
         menuSolicitudesPIE?.classList.add("d-none");
         menuSolicitudesPIConfirmadas?.classList.add("d-none");

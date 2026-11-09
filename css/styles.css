@@ -51,6 +51,169 @@
     box-shadow: 0 0 0 0.2rem rgba(255, 49, 49, 0.12);
 }
 
+/* Interacciones de las tablas de catálogos */
+.pagina-gestion-catalogo .tabla-gestion-catalogo {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-codigo {
+    width: 7%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-placa {
+    width: 15%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-descripcion {
+    width: 30%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-capacidad {
+    width: 15%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-estado {
+    width: 12%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-acciones {
+    width: 21%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo td {
+    overflow-wrap: anywhere;
+}
+
+.pagina-gestion-catalogo .transicion-estado-vehiculo {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .catalogo-codigo,
+.pagina-gestion-catalogo .tabla-gestion-catalogo .catalogo-capacidad,
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-codigo {
+    white-space: nowrap;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-medio-descripcion {
+    width: 40%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-cuenta {
+    width: 20%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-medio-estado {
+    width: 13%;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .columna-medio-acciones {
+    width: 20%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-codigo {
+    width: 7%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-placa {
+    width: 13%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-descripcion {
+    width: 22%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-tipo {
+    width: 18%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-capacidad {
+    width: 14%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-estado {
+    width: 10%;
+}
+
+.pagina-gestion-vehiculos .tabla-gestion-catalogo .columna-acciones {
+    width: 16%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-codigo {
+    width: 6%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-nombre {
+    width: 18%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-contacto {
+    width: 21%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-dni {
+    width: 10%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-rol {
+    width: 14%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-situacion {
+    width: 13%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-estado {
+    width: 9%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .columna-usuario-acciones {
+    width: 9%;
+}
+
+.pagina-gestion-usuarios .tabla-gestion-catalogo .usuario-identificador {
+    overflow-wrap: anywhere;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo-body {
+    transition: opacity 0.18s ease;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo-body.tabla-cargando {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pagina-gestion-catalogo .tabla-gestion-catalogo .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.2rem 0.45rem rgba(0, 0, 0, 0.12);
+}
+
+.navbar #menu-vehiculos > a,
+.navbar #menu-medios-pago > a,
+.navbar #menu-usuarios > a {
+    background-color: rgba(25, 135, 84, 0.08);
+    border-radius: 0.375rem;
+    transition: background-color 0.2s ease;
+}
+
+.navbar #menu-vehiculos > a:hover,
+.navbar #menu-vehiculos > a:focus,
+.navbar #menu-medios-pago > a:hover,
+.navbar #menu-medios-pago > a:focus,
+.navbar #menu-usuarios > a:hover,
+.navbar #menu-usuarios > a:focus {
+    background-color: rgba(25, 135, 84, 0.14);
+}
+
 /* Estados compartidos en tablas y detalles */
 .estado-badge {
     background-color: var(--bs-secondary-bg-subtle);
@@ -239,9 +402,7 @@ form hr {
 
 .ecotrack-navbar-tagline {
     max-width: 34ch;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 @media (max-width: 991.98px) {
@@ -304,6 +465,7 @@ form hr {
     }
 
     .ecotrack-navbar-tagline {
-        display: none;
+        max-width: 24ch;
+        font-size: 0.75rem;
     }
 }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EcoTrack | Ver mi programación</title>
+    <title>Ecotrack | Ver mi programación</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
@@ -260,6 +260,33 @@
                     <button type="button" class="btn btn-danger rounded-pill px-3" id="btn-confirmar-salida">
                         <i class="bi bi-box-arrow-up-right me-1"></i>
                         Sí, registrar salida
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-confirmar-finalizacion" tabindex="-1"
+        aria-labelledby="titulo-modal-confirmar-finalizacion" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="titulo-modal-confirmar-finalizacion">
+                        Solicitar finalización
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Deseas solicitar la finalización de esta programación?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        Continuar programación
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-3"
+                        id="btn-confirmar-finalizacion">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Sí, solicitar finalización
                     </button>
                 </div>
             </div>

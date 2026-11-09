@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecotrack | Mantener vehículos</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="min-vh-100 d-flex flex-column pagina-gestion-catalogo pagina-gestion-vehiculos">
+
+    <div id="pantalla-carga">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-secondary fw-semibold">Cargando...</p>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="flex-grow-1 d-flex align-items-center py-5">
+        <section class="container">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <span class="badge text-bg-success mb-2">Mantenimiento de vehículos</span>
+                    <h1 class="h2 fw-bold mb-1">Mantener vehículos</h1>
+                    <p class="text-secondary mb-0">
+                        Registra, edita y administra el estado de los vehículos.
+                    </p>
+                </div>
+                <button type="button" class="btn btn-danger" id="btnNuevoVehiculo">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Añadir vehículo
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">Listado de vehículos</h2>
+                            <p class="text-secondary small mb-0">
+                                Busca por placa, marca, modelo o tipo; los números buscan el código exacto.
+                            </p>
+                        </div>
+                        <span class="badge text-bg-light border text-dark fs-6" id="totalVehiculos">
+                            Vehículos en página: 0
+                        </span>
+                    </div>
+
+                    <div class="row align-items-end g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="buscarVehiculo" class="form-label">Buscar vehículo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="search" class="form-control" id="buscarVehiculo"
+                                    placeholder="Placa, marca, modelo, tipo o código exacto">
+                            </div>
+                        </div>
+                        <div class="col-md-auto">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                id="btnLimpiarBusqueda">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Limpiar búsqueda
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="mensaje" class="mb-3"></div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle tabla-gestion-catalogo">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="columna-codigo">Código</th>
+                                    <th class="columna-placa">Placa</th>
+                                    <th class="columna-descripcion">Marca y modelo</th>
+                                    <th class="columna-tipo">Tipo</th>
+                                    <th class="columna-capacidad">Capacidad (lb)</th>
+                                    <th class="columna-estado">Estado</th>
+                                    <th class="columna-acciones text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaVehiculos" class="tabla-gestion-catalogo-body">
+                                <tr>
+                                    <td colspan="7" class="text-center text-secondary py-4">
+                                        <div class="spinner-border spinner-border-sm text-danger me-2"
+                                            role="status"></div>
+                                        Cargando vehículos...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                        <span class="text-secondary small" id="informacionPagina">Página 0 de 0</span>
+                        <nav aria-label="Paginación de vehículos">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" id="item-anterior">
+                                    <button type="button" class="page-link" id="pagina-anterior">Anterior</button>
+                                </li>
+                                <li class="page-item" id="item-siguiente">
+                                    <button type="button" class="page-link" id="pagina-siguiente">Siguiente</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <div class="modal fade" id="modalVehiculo" tabindex="-1" aria-labelledby="tituloModalVehiculo"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <form id="formVehiculo">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-5 fw-bold" id="tituloModalVehiculo">Añadir vehículo</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="mensajeFormulario" class="mb-3"></div>
+                        <div class="mb-3">
+                            <label for="placa" class="form-label">Placa</label>
+                            <input type="text" class="form-control" id="placa" name="placa"
+                                maxlength="20" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="marca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="marca" name="marca"
+                                maxlength="50" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modelo" class="form-label">Modelo</label>
+                            <input type="text" class="form-control" id="modelo" name="modelo"
+                                maxlength="50" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="capacidadLibras" class="form-label">Capacidad en libras</label>
+                            <input type="number" class="form-control" id="capacidadLibras"
+                                name="capacidadLibras" min="0" max="99999999.99" step="0.01" required>
+                        </div>
+                        <div>
+                            <label for="tipo" class="form-label">Tipo de vehículo</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="" selected disabled>Selecciona un tipo</option>
+                                <option value="VOLQUETE">Volquete</option>
+                                <option value="EXCAVADORA">Excavadora</option>
+                                <option value="RETROEXCAVADORA">Retroexcavadora</option>
+                                <option value="CARGADOR_FRONTAL">Cargador frontal</option>
+                                <option value="TRACTOR_DE_ORUGAS">Tractor de orugas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger" id="btnGuardarVehiculo">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Guardar vehículo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarEstado" tabindex="-1"
+        aria-labelledby="tituloModalEstado" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5 fw-bold" id="tituloModalEstado">Cambiar estado del vehículo</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1" id="mensajeConfirmarEstado"></p>
+                    <p class="text-secondary small mb-0" id="detalleConfirmarEstado"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn" id="btnConfirmarEstado">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="site-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/vehiculo/gestionarVehiculos.js"></script>
+
+</body>
+
+</html>

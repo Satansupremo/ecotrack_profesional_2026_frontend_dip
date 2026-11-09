@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EcoTrack | Unidades de emergencia</title>
+    <title>Ecotrack | Unidades de emergencia</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -323,6 +323,33 @@
                     <button type="button" class="btn btn-success rounded-pill px-3" id="btn-aceptar-confirmacion">
                         <i class="bi bi-check-circle me-1"></i>
                         Sí, confirmar unidades
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-cancelar-reservas" tabindex="-1"
+        aria-labelledby="titulo-cancelar-reservas" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="titulo-cancelar-reservas">
+                        Cancelar reservas
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Deseas cancelar todas tus reservas de emergencia para esta programación?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border rounded-pill px-3" data-bs-dismiss="modal">
+                        Mantener reservas
+                    </button>
+                    <button type="button" class="btn btn-outline-danger rounded-pill px-3"
+                        id="btn-aceptar-cancelacion">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Sí, cancelar reservas
                     </button>
                 </div>
             </div>

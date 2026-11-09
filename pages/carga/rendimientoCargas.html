@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendimiento de cargas | Ecotrack</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="min-vh-100 d-flex flex-column">
+
+    <div id="pantalla-carga">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-secondary fw-semibold">Cargando...</p>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="flex-grow-1 d-flex align-items-center py-5">
+        <section class="container">
+
+            <div class="mb-4">
+                <span class="badge text-bg-success mb-2">Reporte de cargas</span>
+                <h1 class="h2 fw-bold mb-1">Rendimiento de cargas por empleado</h1>
+                <p class="text-secondary mb-0">
+                    Filtra por fechas para consultar la cantidad de cargas registradas por cada empleado.
+                </p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">Empleados y cargas</h2>
+                            <p class="text-secondary small mb-0">
+                                El rango seleccionado incluye ambos días.
+                            </p>
+                        </div>
+                        <span class="badge text-bg-light border text-dark fs-6" id="totalEmpleados">
+                            Empleados: 0
+                        </span>
+                    </div>
+
+                    <form id="formFiltros" class="row align-items-end g-3 mb-4">
+                        <div class="col-sm-6 col-lg-3">
+                            <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+                            <input type="date" class="form-control" id="fechaInicio" required>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <label for="fechaFin" class="form-label">Fecha de fin</label>
+                            <input type="date" class="form-control" id="fechaFin" required>
+                        </div>
+                        <div class="col-sm-auto">
+                            <button type="submit" class="btn btn-danger" id="btnFiltrar">
+                                <i class="bi bi-funnel me-1"></i>
+                                Filtrar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="mensaje" class="mb-3" aria-live="polite"></div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Empleado</th>
+                                    <th scope="col">DNI</th>
+                                    <th scope="col">Rol</th>
+                                    <th scope="col" class="text-end">Cantidad de cargas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRendimiento" aria-live="polite">
+                                <tr>
+                                    <td colspan="5" class="text-center text-secondary py-4">
+                                        Selecciona un rango de fechas para consultar el rendimiento.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                        <span class="text-secondary small" id="informacionPagina">Página 0 de 0</span>
+                        <nav aria-label="Paginación del rendimiento de cargas">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item">
+                                    <button type="button" class="page-link" id="pagina-anterior">Anterior</button>
+                                </li>
+                                <li class="page-item">
+                                    <button type="button" class="page-link" id="pagina-siguiente">Siguiente</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/carga/rendimientoCargas.js"></script>
+
+</body>
+
+</html>

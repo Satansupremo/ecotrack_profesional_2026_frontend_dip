@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const modalConfirmacion = bootstrap.Modal.getOrCreateInstance(
         document.getElementById("modal-confirmar-unidades")
     );
+    const modalCancelarReservas = bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("modal-cancelar-reservas")
+    );
 
     let reservasActuales = [];
     let temporizador = null;
@@ -66,7 +69,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         modalConfirmacion.show();
     });
-    btnCancelar.addEventListener("click", cancelarReservas);
+    btnCancelar.addEventListener("click", () => {
+        if (reservasActuales.length === 0) {
+            mostrarMensaje(
+                "No tienes reservas pendientes para cancelar.",
+                "warning"
+            );
+            return;
+        }
+
+        modalCancelarReservas.show();
+    });
+    document.getElementById("btn-aceptar-cancelacion")
+        .addEventListener("click", async () => {
+            modalCancelarReservas.hide();
+            await cancelarReservas();
+        });
     btnAceptarLiberacion.addEventListener("click", async () => {
         const idReserva = idReservaPendienteLiberacion;
         idReservaPendienteLiberacion = null;
@@ -437,6 +455,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     resultado.message || "Las unidades fueron confirmadas correctamente.",
                     "success"
                 );
+
+                setTimeout(() => {
+                    window.location.href =
+                        "/pages/programacion/gestionarMisProgramaciones.html";
+                }, 1200);
             }
 
         } catch (error) {
@@ -459,12 +482,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 "warning"
             );
 
-            return;
-        }
-
-        if (!confirm(
-            "¿Deseas cancelar todas tus reservas de emergencia para esta programación?"
-        )) {
             return;
         }
 
