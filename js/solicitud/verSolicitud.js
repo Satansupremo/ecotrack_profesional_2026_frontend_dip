@@ -1,5 +1,6 @@
 
 const API_URL = "http://localhost:8080/api/solicitud";
+const CONTRATO_API_URL = "http://localhost:8080/api/contrato";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -52,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function renderizarSolicitud(solicitud) {
+        const contratoDisponible = solicitud.estado === "FINALIZADO";
         const secciones = [
             {
                 titulo: "Información de la solicitud",
@@ -144,7 +146,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </section>
             `).join("")}
 
-            <div class="d-flex justify-content-end mt-4">
+            <div class="d-flex justify-content-end flex-wrap gap-2 mt-4">
+                <button type="button"
+                        id="descargar-contrato"
+                        class="btn btn-danger"
+                        ${contratoDisponible ? "" : "disabled"}>
+                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                    Descargar contrato
+                </button>
                 <a href="/pages/solicitud/gestionarMisSolicitudes.html"
                    class="btn btn-outline-secondary btn-accion-cancelar">
                     <i class="bi bi-arrow-left me-2"></i>
@@ -152,6 +161,85 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </a>
             </div>
         `;
+
+        const botonContrato = detalleContainer.querySelector("#descargar-contrato");
+        botonContrato.addEventListener("click", () => descargarContrato(solicitud.idSolicitud, botonContrato));
+    }
+
+    async function descargarContrato(id, boton) {
+        boton.disabled = true;
+        boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Generando contrato...';
+
+        try {
+            const response = await fetchAutenticado(
+                `${CONTRATO_API_URL}/generar/${encodeURIComponent(id)}`
+            );
+
+            if (!response.ok) {
+                const detalle = await leerDetalleError(response);
+                throw new Error(detalle || `El servidor respondió con el estado ${response.status}.`);
+            }
+
+            const contrato = await response.blob();
+            const url = URL.createObjectURL(contrato);
+            const enlace = document.createElement("a");
+            enlace.href = url;
+            enlace.download = "contrato_ecotrack.pdf";
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+            mostrarMensaje("El contrato se descargó correctamente.", "success");
+        } catch (error) {
+            mostrarMensaje(
+                error.message || "No se pudo descargar el contrato.",
+                "danger"
+            );
+        } finally {
+            boton.disabled = false;
+            boton.innerHTML = '<i class="bi bi-file-earmark-pdf me-2"></i>Descargar contrato';
+        }
+    }
+
+    async function leerDetalleError(response) {
+        const contenido = await response.text();
+
+        if (!contenido.trim()) {
+            return null;
+        }
+
+        try {
+            const respuesta = JSON.parse(contenido);
+
+            if (typeof respuesta === "string") {
+                return respuesta;
+            }
+
+            if (respuesta && typeof respuesta === "object") {
+                const detalle = respuesta.message
+                    || respuesta.mensaje
+                    || respuesta.detail
+                    || respuesta.error
+                    || respuesta.data?.message
+                    || respuesta.data?.mensaje;
+
+                if (typeof detalle === "string" && detalle.trim()) {
+                    return detalle;
+                }
+
+                if (respuesta.errors) {
+                    return typeof respuesta.errors === "string"
+                        ? respuesta.errors
+                        : JSON.stringify(respuesta.errors, null, 2);
+                }
+
+                return JSON.stringify(respuesta, null, 2);
+            }
+        } catch {
+            return contenido;
+        }
+
+        return null;
     }
 
     function renderizarCampo(nombre, valor, fases = []) {
@@ -634,12 +722,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function mostrarMensaje(mensaje, tipo) {
+        const presentaciones = {
+            success: { icono: "bi-check-circle-fill", titulo: "Listo" },
+            warning: { icono: "bi-exclamation-triangle-fill", titulo: "Atención" },
+            danger: { icono: "bi-x-octagon-fill", titulo: "No se pudo completar" }
+        };
+        const presentacion = presentaciones[tipo] || presentaciones.danger;
+
         mensajeContainer.innerHTML = `
-            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                ${escaparHTML(mensaje)}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert alert-${tipo} d-flex align-items-center gap-3 rounded-3 border-0 shadow-sm p-3 mb-4"
+                 role="alert" tabindex="-1" style="scroll-margin-top: 1rem;">
+                <i class="bi ${presentacion.icono} fs-4 flex-shrink-0" aria-hidden="true"></i>
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="fw-semibold small mb-1">${presentacion.titulo}</div>
+                    <div class="small text-break" style="white-space: pre-wrap;">${escaparHTML(mensaje)}</div>
+                </div>
+                <button type="button" class="btn-close position-static flex-shrink-0 ms-auto"
+                        data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         `;
+
+        const alerta = mensajeContainer.querySelector('[role="alert"]');
+        alerta.scrollIntoView({ behavior: "smooth", block: "center" });
+        alerta.focus({ preventScroll: true });
     }
 
     function escaparHTML(valor) {
